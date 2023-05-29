@@ -1,0 +1,16 @@
+html, body { height: 100% }
+
+body {
+  background: black;
+  color: white;
+}
+
+canvas {
+  margin: auto;
+  background: grey;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+}
