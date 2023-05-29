@@ -7,6 +7,7 @@ window.onload = () => {
   const sim = new Sim()
   sim.updateCanvas(canvas)
   const pos = new Pos(Math.random(), 0)
-  sim.stage.addParticle(pos, {name: "water"})
+  sim.addWater(100)
+  sim.addLand(100)
   sim.run(ctx)
 }

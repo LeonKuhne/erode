@@ -6,15 +6,22 @@ export class Sim {
   constructor() {
     this.stage = new Stage() 
     this.running = false
-    this.addedWater = 0
-    this.addedLand = 0
-    this.erosionTicks = 1
   }
 
   updateCanvas(canvas) {
     this.stage.updateSize(canvas.width, canvas.height)  
     canvas.width = this.stage.width
     canvas.height = this.stage.height
+  }
+
+  addWater(count=1) {
+    const pos = new Pos(Math.random(), Math.random() * .5)
+    this.stage.addParticle(pos, {name: "water"})
+  }
+
+  addLand(count=1) {
+    const pos = new Pos(Math.random(), Math.random() * .5 + .5)
+    this.stage.addParticle(pos, {name: "land"})
   }
 
   run(ctx, delay=20) {
@@ -30,19 +37,7 @@ export class Sim {
   }
 
   cycle() {
-    // add land to the bottom of the stage
-    for (let x=0;x<this.addedLand;x++) {
-      const pos = new Pos(Math.random(), 1)
-      this.stage.addParticle(pos, { name: "land" })
-    }
-    // add water to the top of the stage
-    for (let x=0;x<this.addedWater;x++) {
-      const pos = new Pos(Math.random(), 0)
-      this.stage.addParticle(pos, { name: "water" })
-    }
-    // erode the stage
-    for (let x=0;x<this.erosionTicks;x++) {
-      this.stage.erode()
-    }
+    // adjust heat/spin and such TODO
+    this.stage.erode()
   }
 }
