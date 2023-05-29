@@ -12,19 +12,14 @@ export class Sim {
     this.addedLand = 20
     this.dirtRatio = 0.5
     this.erosionTicks = 10
-    this.contexts = []
   }
 
-  drawToCanvas(canvas) {
-    const ctx = canvas.getContext("2d")
-    this.contexts.append(ctx)
-  }
-
-  run(delay=10) {
+  run(ctx, delay=200) {
     this.running = true
     const loop = () => {
       if (this.running) {
         this.cycle()
+        this.stage.draw(ctx)
         setTimeout(loop, delay)
       }
     }
@@ -44,10 +39,6 @@ export class Sim {
     // erode the stage
     for (let x=0;x<this.erosionTicks;x++) {
       this.stage.erode()
-    }
-    // draw to all screens
-    for (let ctx of this.contexts) {
-      this.stage.draw(ctx)
     }
   }
 }
