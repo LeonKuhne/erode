@@ -6,7 +6,6 @@ export class Stage {
 
   constructor() {
     this.minDist = 30 // num pixels
-    this.gravity = 3 // pixels per erode tick
     this.cols = 0
     this.rows = 0
     this.width = 0
@@ -65,14 +64,53 @@ export class Stage {
     return new Pos(xOffset, yOffset)
   }
 
-  erode() {
+  update(callback) {
+    // calculate deltas 
+    this.eachNeighbors((particle, neighbors) => {
+      callback(particle, neighbors)
+    })
+    // apply positions and fix zones
+    this.eachParticleZone((particle, zone) => {
+      particle.applyForces()
+      this.moveParticle(zone, particle)
+    })
+  }
+
+  eachParticleZone(callback) {
     for (let col of this.zones) {
       for (let zone of col) {
         for (let particle of zone.particles) {
-          // apply gravity
-          particle.y += this.gravity
-          // adjust zone
-          this.moveParticle(zone, particle)
+          callback(particle, zone)
+        }
+      }
+    }
+  }
+
+  eachNeighbors(callback) {
+    for (let column of this.zones) {
+      for (let z=0;z<column.length;z++) {
+        const zone = column[z]
+        const nearby = []
+        // get nearby
+        for (let c=-1;c<2;c++) {
+          for (let r=-1;r<2;r++) {
+            let col = zone.col + c
+            const row = zone.col + c
+            // wrap sides
+            if (col < 0) {
+              col += this.cols
+            } else if (col >= this.zones.length) {
+              col -= this.cols
+            // ignore top/bottom edges
+            } if (row < 0 || row >= column.length) {
+              continue
+            }
+            nearby.push([this.zones[col][row], new Pos(c, r)])
+          }
+        }
+        // return nearby
+        for (let particle of zone.particles) {
+          callback(particle, nearby)
         }
       }
     }

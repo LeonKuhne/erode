@@ -6,6 +6,7 @@ export class Sim {
   constructor() {
     this.stage = new Stage() 
     this.running = false
+    this.gravity = 3 // pixels pull down per tick 
   }
 
   updateCanvas(canvas) {
@@ -15,13 +16,17 @@ export class Sim {
   }
 
   addWater(count=1) {
-    const pos = new Pos(Math.random(), Math.random() * .5)
-    this.stage.addParticle(pos, {name: "water"})
+    for (let x=0;x<count;x++) {
+      const pos = new Pos(Math.random(), Math.random() * .5)
+      this.stage.addParticle(pos, {name: "water"})
+    }
   }
 
   addLand(count=1) {
-    const pos = new Pos(Math.random(), Math.random() * .5 + .5)
-    this.stage.addParticle(pos, {name: "land"})
+    for (let x=0;x<count;x++) {
+      const pos = new Pos(Math.random(), Math.random() * .5 + .5)
+      this.stage.addParticle(pos, {name: "land"})
+    }
   }
 
   run(ctx, delay=20) {
@@ -37,7 +42,20 @@ export class Sim {
   }
 
   cycle() {
-    // adjust heat/spin and such TODO
-    this.stage.erode()
+    this.stage.update((particle, nearby) => {
+      // apply gravity
+      //particle.y += this.gravity
+      // repel nearby
+      for (let [neighbor, offset] of nearby) {
+        // check if close enough
+        offset.x *= this.stage.minDist
+        offset.y *= this.stage.minDist
+        if (particle.distance(neighbor, offset) < this.stage.minDist) {
+          particle.repel(neighbor)
+        }
+      }
+      // adjust heat/spin
+      // TODO
+    })
   }
 }
