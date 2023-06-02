@@ -7,6 +7,7 @@ export class Sim {
     this.stage = new Stage() 
     this.running = false
     this.gravity = 3 // pixels pull down per tick 
+    this.jitter = 1
   }
 
   updateCanvas(canvas) {
@@ -43,6 +44,9 @@ export class Sim {
 
   cycle() {
     this.stage.update((particle, nearby) => {
+      // apply jitter
+      particle.x += (Math.random() * 2 - 1) * this.jitter
+      particle.y += (Math.random() * 2 - 1) * this.jitter
       // apply gravity
       //particle.y += this.gravity
       // repel nearby
@@ -54,7 +58,9 @@ export class Sim {
           if (particle === other) continue
           const distance = particle.distance(other, neighbor.offset)
           if (distance <= this.stage.minDist) {
-            particle.repel(other, neighbor.offset)
+            // TODO this might need tweaking
+            const amount = (1 - distance / this.stage.minDist) ** 2
+            particle.repel(other, neighbor.offset, amount)
           }
         }
       }

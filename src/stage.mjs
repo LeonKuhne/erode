@@ -122,6 +122,9 @@ export class Stage {
 
   moveParticle(zone, particle) {
     const col = this.wrapColumn(zone.col, particle)
+    if (col < 0 || col >= this.cols) {
+      throw new Error(`invalid column ${col}`)
+    }
     const row = this.stopRow(zone.row, particle)
     // update zone
     if (col != zone.col || row != zone.row) {
@@ -134,11 +137,12 @@ export class Stage {
   }
 
   wrapColumn(col, particle) {
-    const offset = Math.floor(particle.x / this.minDist)
+    let offset = Math.floor(particle.x / this.minDist)
     // next/prev zone
     if (offset) {
       particle.x -= this.minDist * offset
-      return (this.cols + col + offset) % this.cols
+      while (offset < 0) offset += this.cols
+      return (col + offset) % this.cols
     }
     return col
   }
