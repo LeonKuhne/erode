@@ -6,7 +6,6 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  const pos = new Pos(Math.random(), 0)
   sim.addWater(100)
   sim.addLand(100)
   sim.run(ctx)

@@ -48,11 +48,10 @@ export class Sim {
       // repel nearby
       for (let neighbor of nearby) {
         // check if close enough
-        neighbor.offset.x *= this.stage.minDist
-        neighbor.offset.y *= this.stage.minDist
+        neighbor.offset.multiply(this.stage.minDist)
         for (let other of neighbor.zone.particles) {
           // ignore self
-          if (particle === neighbor.zone.particles) continue
+          if (particle === other) continue
           const distance = particle.distance(other, neighbor.offset)
           if (distance <= this.stage.minDist) {
             particle.repel(other, neighbor.offset)

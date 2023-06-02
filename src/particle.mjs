@@ -4,8 +4,10 @@ export class Particle extends Pos {
 
   constructor(pos, features) {
     super(pos.x, pos.y)
-    this.features = features
+    this.vel = new Pos(0, 0)
+    this.acc = new Pos(0, 0)
     this.forceQueue = new Pos(0, 0)
+    this.features = features
   }
 
   repel(other, offset, amount=.1) {
@@ -18,6 +20,7 @@ export class Particle extends Pos {
   }
 
   applyForces() {
+    this.vel.add(this.forceQueue)
     this.x += this.forceQueue.x
     this.y += this.forceQueue.y
     this.forceQueue.x = 0

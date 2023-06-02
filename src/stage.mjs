@@ -79,7 +79,8 @@ export class Stage {
   eachParticleZone(callback) {
     for (let col of this.zones) {
       for (let zone of col) {
-        for (let particle of zone.particles) {
+        for (let i=0;i<zone.particles.length;i++) {
+          const particle = zone.particles[i]
           callback(particle, zone)
         }
       }
@@ -95,14 +96,14 @@ export class Stage {
         for (let c=-1;c<2;c++) {
           for (let r=-1;r<2;r++) {
             let col = zone.col + c
-            const row = zone.col + c
+            const row = zone.row + r
             // wrap sides
             if (col < 0) {
               col += this.cols
-            } else if (col >= this.zones.length) {
+            } else if (col >= this.cols) {
               col -= this.cols
             // ignore top/bottom edges
-            } if (row < 0 || row >= column.length) {
+            } if (row < 0 || row >= this.rows) {
               continue
             }
             nearby.push({
