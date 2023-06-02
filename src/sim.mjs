@@ -12,14 +12,13 @@ export class Sim {
   }
 
   // @param pos normalized Pos between 0 and 1
-  highlight(pos) {
+  highlight(pos, color) {
     pos.x /= this.stage.width
     pos.y /= this.stage.height
     const particles = this.stage.findParticles(pos) 
     const zone = this.stage.getZone(pos)
-    this.stage.highlighted = []
     for (let particle of particles) {
-      this.stage.highlighted.push({zone, particle, color: "#ff0000"})
+      this.stage.highlighted[color] = {zone, particle, color}
     }
   }
 

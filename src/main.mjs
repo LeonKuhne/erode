@@ -13,16 +13,11 @@ window.onload = () => {
   // on mouse hover highlight hovered particle
   canvas.addEventListener("mousemove", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
-    sim.highlight(pos)
+    sim.highlight(pos, "#00ff00")
   })
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
-    const mousePos = new Pos(e.offsetX, e.offsetY)
-    const zone = sim.stage.getZone(mousePos)
-    const particles = sim.stage.findParticles(mousePos)
-    if (particles.length) {
-      const particle = particles[0]
-      sim.highlight(zone, particle)
-    }
+    const pos = new Pos(e.offsetX, e.offsetY)
+    sim.highlight(pos, "#ff0000")
   })
 }

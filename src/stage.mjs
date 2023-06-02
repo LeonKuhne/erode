@@ -13,7 +13,7 @@ export class Stage {
     this.width = 0
     this.height = 0
     this.zones = []
-    this.highlighted = []
+    this.highlighted = {}
   }
 
   updateSize(width, height) {
@@ -186,7 +186,7 @@ export class Stage {
     }
     // highlight
     if (this.highlighted) {
-      for (let {zone, particle, color} of this.highlighted) {
+      for (let {zone, particle, color} of Object.values(this.highlighted)) {
         particle.draw(ctx, zone, this.particleSize, color)
       }
     }
