@@ -1,4 +1,3 @@
-import { Pos } from "./pos.mjs"
 import { Sim } from "./sim.mjs"
 
 window.onload = () => {
@@ -6,7 +5,7 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  sim.addWater(100)
-  sim.addLand(100)
+  sim.addWater(500)
+  sim.addLand(500)
   sim.run(ctx)
 }

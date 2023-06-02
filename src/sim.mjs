@@ -6,8 +6,9 @@ export class Sim {
   constructor() {
     this.stage = new Stage() 
     this.running = false
-    this.gravity = 3 // pixels pull down per tick 
-    this.jitter = 1
+    this.gravity = 3        // pixels pull down per tick 
+    this.jitter = 1         // max pixels to move per tick
+    this.repelAmount = 0.001 // ratio of distance to move
   }
 
   updateCanvas(canvas) {
@@ -59,7 +60,7 @@ export class Sim {
           const distance = particle.distance(other, neighbor.offset)
           if (distance <= this.stage.minDist) {
             // TODO this might need tweaking
-            const amount = (1 - distance / this.stage.minDist) ** 2
+            const amount = (1 - distance / this.stage.minDist) ** 2 * this.repelAmount 
             particle.repel(other, neighbor.offset, amount)
           }
         }

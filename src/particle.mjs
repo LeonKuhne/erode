@@ -11,18 +11,21 @@ export class Particle extends Pos {
   }
 
   repel(other, offset, amount) {
-    const deltaX = (other.x - this.x - offset.x) * amount
-    const deltaY = (other.y - this.y - offset.y) * amount
-    this.forceQueue.x += deltaX
-    this.forceQueue.y += deltaY
-    other.forceQueue.x -= deltaX
-    other.forceQueue.y -= deltaY
+    const delta = new Pos(
+      (other.x - this.x - offset.x),
+      (other.y - this.y - offset.y)
+    )
+    delta.multiply(amount)
+    other.forceQueue.add(delta)
+    delta.multiply(-1)
+    this.forceQueue.add(delta)
   }
 
   applyForces() {
-    this.acc.add(this.forceQueue)
-    this.vel.add(this.acc)
-    this.add(this.vel)
+    //this.acc.add(this.forceQueue)
+    //this.vel.add(this.acc)
+    //this.add(this.vel)
+    this.add(this.forceQueue)
     this.forceQueue.x = 0
     this.forceQueue.y = 0
   }

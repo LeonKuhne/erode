@@ -18,10 +18,10 @@ export class Zone extends Pos {
     ctx.fillStyle = "#aaaaaa"
     ctx.font = "18px Arial"
     ctx.fillText(this.particles.length, this.x-.5 + this.size/3, this.y-.5 + this.size*3/4)
-    // TODO: return an image here and blit it 
     for (let particle of this.particles) {
       const x = this.x + particle.x - particleSize/2 - .5
       const y = this.y + particle.y - particleSize/2 - .5
+      // old method
       ctx.fillStyle = particle.color()
       ctx.fillRect(x, y, particleSize, particleSize)
     }
