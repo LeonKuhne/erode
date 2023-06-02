@@ -11,8 +11,16 @@ export class Sim {
     this.running = false
   }
 
-  highlight(zone, particle) {
-    this.stage.highlight = {zone, particle}
+  // @param pos normalized Pos between 0 and 1
+  highlight(pos) {
+    pos.x /= this.stage.width
+    pos.y /= this.stage.height
+    const particles = this.stage.findParticles(pos) 
+    const zone = this.stage.getZone(pos)
+    this.stage.highlighted = []
+    for (let particle of particles) {
+      this.stage.highlighted.push({zone, particle, color: "#ff0000"})
+    }
   }
 
   updateCanvas(canvas) {

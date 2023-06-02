@@ -26,4 +26,8 @@ export class Zone extends Pos {
   add(particle) {
     this.particles.push(particle)
   }
+
+  toString() {
+    return `table: (${this.col},${this.row}), pos: (${this.x}, ${this.y}), size: ${this.size}`
+  }
 }

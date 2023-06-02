@@ -1,2 +1,9 @@
+// add hover color on particles
+// add visualization by clicking on particles
+// fix zone edges
+// use distant zones by
+//    summing zone as one particle with
+//    summing remainging particles of nearby zones
+// repel from center of all zones to zone
 // introduce temperatures
 // - strike surface with light particles (sun rays) to heat up particles

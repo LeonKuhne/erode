@@ -10,11 +10,14 @@ window.onload = () => {
   sim.addLand(500)
   sim.run(ctx)
 
-
+  // on mouse hover highlight hovered particle
+  canvas.addEventListener("mousemove", (e) => {
+    const pos = new Pos(e.offsetX, e.offsetY)
+    sim.highlight(pos)
+  })
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
     const mousePos = new Pos(e.offsetX, e.offsetY)
-    mousePos.divide(sim.stage.width, sim.stage.height)
     const zone = sim.stage.getZone(mousePos)
     const particles = sim.stage.findParticles(mousePos)
     if (particles.length) {
