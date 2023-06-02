@@ -151,7 +151,7 @@ export class Stage {
     let offset = Math.floor(particle.x / this.minDist)
     // next/prev zone
     if (offset) {
-      particle.x -= this.minDist * offset
+      particle.x %= this.minDist
       while (offset < 0) offset += this.cols
       return (col + offset) % this.cols
     }
@@ -173,7 +173,7 @@ export class Stage {
       return row
     }
     // next/prev zone
-    particle.y -= this.minDist * offset
+    particle.y %= this.minDist
     return row + offset
   }
 
