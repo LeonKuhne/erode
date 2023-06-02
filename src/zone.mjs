@@ -9,7 +9,7 @@ export class Zone extends Pos {
     this.size = size
   }
 
-  draw(ctx, particleSize = 10) {
+  draw(ctx, particleSize) {
     // draw zone border 
     const b = 1 // border
     ctx.fillStyle = "#000000"
@@ -19,11 +19,7 @@ export class Zone extends Pos {
     ctx.font = "18px Arial"
     ctx.fillText(this.particles.length, this.x-.5 + this.size/3, this.y-.5 + this.size*3/4)
     for (let particle of this.particles) {
-      const x = this.x + particle.x - particleSize/2 - .5
-      const y = this.y + particle.y - particleSize/2 - .5
-      // old method
-      ctx.fillStyle = particle.color()
-      ctx.fillRect(x, y, particleSize, particleSize)
+      particle.draw(ctx, this, particleSize)
     }
   }
 

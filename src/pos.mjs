@@ -9,8 +9,29 @@ export class Pos {
     this.y += other.y
   }
 
+  subtract(other) {
+    this.x -= other.x
+    this.y -= other.y
+  }
+
   multiply(factor) {
     this.x *= factor
     this.y *= factor
+  }
+
+  divide(factor) {
+    this.x /= factor
+    this.y /= factor
+  }
+
+  distance(other, offset) {
+    const delta = other.clone()
+    delta.add(offset)
+    delta.subtract(this)
+    return (delta.x ** 2 + delta.y ** 2) ** .5 
+  }
+
+  clone() {
+    return new Pos(this.x, this.y)
   }
 }

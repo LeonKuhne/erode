@@ -4,37 +4,28 @@ export class Particle extends Pos {
 
   constructor(pos, features) {
     super(pos.x, pos.y)
-    this.vel = new Pos(0, 0)
-    this.acc = new Pos(0, 0)
     this.forceQueue = new Pos(0, 0)
     this.features = features
   }
 
   repel(other, offset, amount) {
-    const delta = new Pos(
-      (other.x - this.x - offset.x),
-      (other.y - this.y - offset.y)
-    )
+    const delta = other.clone()
+    delta.add(offset)
+    delta.subtract(this)
     delta.multiply(amount)
     other.forceQueue.add(delta)
-    delta.multiply(-1)
-    this.forceQueue.add(delta)
+    this.forceQueue.subtract(delta)
+  }
+
+  force(x, y) {
+    this.forceQueue.x += x
+    this.forceQueue.y += y
   }
 
   applyForces() {
-    //this.acc.add(this.forceQueue)
-    //this.vel.add(this.acc)
-    //this.add(this.vel)
     this.add(this.forceQueue)
     this.forceQueue.x = 0
     this.forceQueue.y = 0
-  }
-
-  distance(other, offset) {
-    return (
-      (this.x - other.x - offset.x) ** 2 +  
-      (this.y - other.y - offset.y) ** 2
-    ) ** .5
   }
 
   color() {
@@ -44,5 +35,12 @@ export class Particle extends Pos {
     } else {
       return '#aa6633' // brown
     }
+  }
+
+  draw(ctx, zone, particleSize, color=this.color()) { 
+    const x = zone.x + this.x - particleSize/2 - .5
+    const y = zone.y + this.y - particleSize/2 - .5
+    ctx.fillStyle = color
+    ctx.fillRect(x, y, particleSize, particleSize)
   }
 }

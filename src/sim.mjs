@@ -4,11 +4,15 @@ import { Pos } from "./pos.mjs"
 export class Sim {
 
   constructor() {
-    this.stage = new Stage() 
+    this.stage = new Stage(50, 10) // grid size, particle size 
+    this.gravity = .1        // pixels pull down per tick 
+    this.jitter = .5         // max pixels to move per tick
+    this.repelAmount = .01   // ratio of distance to move
     this.running = false
-    this.gravity = 3        // pixels pull down per tick 
-    this.jitter = 1         // max pixels to move per tick
-    this.repelAmount = 0.001 // ratio of distance to move
+  }
+
+  highlight(zone, particle) {
+    this.stage.highlight = {zone, particle}
   }
 
   updateCanvas(canvas) {
@@ -45,11 +49,11 @@ export class Sim {
 
   cycle() {
     this.stage.update((particle, nearby) => {
-      // apply jitter
-      particle.x += (Math.random() * 2 - 1) * this.jitter
-      particle.y += (Math.random() * 2 - 1) * this.jitter
-      // apply gravity
-      //particle.y += this.gravity
+      // jitter
+      const jit = () => (Math.random() * 2 - 1) * this.jitter 
+      //particle.force(jit(), jit())
+      // gravity
+      //particle.force(0, this.gravity)
       // repel nearby
       for (let neighbor of nearby) {
         // check if close enough
@@ -59,9 +63,8 @@ export class Sim {
           if (particle === other) continue
           const distance = particle.distance(other, neighbor.offset)
           if (distance <= this.stage.minDist) {
-            // TODO this might need tweaking
-            const amount = (1 - distance / this.stage.minDist) ** 2 * this.repelAmount 
-            particle.repel(other, neighbor.offset, amount)
+            const amount = (1 - distance/this.stage.minDist) ** 2 
+            particle.repel(other, neighbor.offset, amount * this.repelAmount)
           }
         }
       }

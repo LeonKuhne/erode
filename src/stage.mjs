@@ -4,13 +4,16 @@ import { Zone } from './zone.mjs'
 
 export class Stage {
 
-  constructor() {
-    this.minDist = 30 // num pixels
+  // @param gridSize size of each zone in pixels
+  constructor(gridSize, particleSize) {
+    this.minDist = gridSize
+    this.particleSize = particleSize
     this.cols = 0
     this.rows = 0
     this.width = 0
     this.height = 0
     this.zones = []
+    this.highlight = null
   }
 
   updateSize(width, height) {
@@ -52,12 +55,14 @@ export class Stage {
     zone.add(particle)
   }
 
+  // @param pos position in normalized coordinates  
   getZone(pos) {
     const col = Math.min(Math.floor(pos.x * (this.cols)), this.cols-1) 
     const row = Math.min(Math.floor(pos.y * (this.rows)), this.rows-1)
     return this.zones[col][row]
   }
 
+  // @param pos position in normalized coordinates
   getOffset(pos) {
     const xOffset = (pos.x * this.width) % this.minDist
     const yOffset = (pos.y * this.height) % this.minDist
@@ -87,44 +92,50 @@ export class Stage {
     }
   }
 
-  eachNeighbors(callback) {
+  eachZone(callback) {
     for (let column of this.zones) {
       for (let z=0;z<column.length;z++) {
-        const zone = column[z]
-        const nearby = []
-        // get nearby
-        for (let c=-1;c<2;c++) {
-          for (let r=-1;r<2;r++) {
-            let col = zone.col + c
-            const row = zone.row + r
-            // wrap sides
-            if (col < 0) {
-              col += this.cols
-            } else if (col >= this.cols) {
-              col -= this.cols
-            // ignore top/bottom edges
-            } if (row < 0 || row >= this.rows) {
-              continue
-            }
-            nearby.push({
-              zone: this.zones[col][row],
-              offset: new Pos(c, r)
-            })
-          }
-        }
-        // return nearby
-        for (let particle of zone.particles) {
-          callback(particle, nearby)
-        }
+        callback(column[z])
       }
     }
   }
 
+  getNearby(zone) {
+    const nearby = []
+    // get nearby
+    for (let c=-1;c<2;c++) {
+      for (let r=-1;r<2;r++) {
+        let col = zone.col + c
+        const row = zone.row + r
+        // wrap sides
+        if (col < 0) {
+          col += this.cols
+        } else if (col >= this.cols) {
+          col -= this.cols
+        // ignore top/bottom edges
+        } if (row < 0 || row >= this.rows) {
+          continue
+        }
+        nearby.push({
+          zone: this.zones[col][row],
+          offset: new Pos(c, r)
+        })
+      }
+    }
+    return nearby
+  }
+    
+  eachNeighbors(callback) {
+    this.eachZone(zone => {
+      const nearby = this.getNearby(zone)
+      for (let particle of zone.particles) {
+        callback(particle, nearby)
+      }
+    })
+  }
+
   moveParticle(zone, particle) {
     const col = this.wrapColumn(zone.col, particle)
-    if (col < 0 || col >= this.cols) {
-      throw new Error(`invalid column ${col}`)
-    }
     const row = this.stopRow(zone.row, particle)
     // update zone
     if (col != zone.col || row != zone.row) {
@@ -170,8 +181,32 @@ export class Stage {
     ctx.clearRect(0, 0, this.width, this.height)
     for (let col of this.zones) {
       for (let zone of col) {
-        zone.draw(ctx)
+        zone.draw(ctx, this.particleSize)
       }
     }
+    // highlight
+    if (this.highlight) {
+      const {zone, particle} = this.highlight
+      particle.draw(ctx, zone, this.particleSize, '#ff0000')
+    }
+  }
+
+  // @param pos position in normalized coordinates
+  findParticles(pos) {
+    const zone = this.getZone(pos)
+    const nearby = this.getNearby(zone)
+    const localPos = this.getOffset(pos)
+    // find particles within range
+    const particles = []
+    for (let neighbor of nearby) {
+      neighbor.offset.multiply(this.minDist)
+      for (let particle of neighbor.zone.particles) {
+        const dist = particle.distance(localPos, neighbor.offset)
+        if (dist < this.particleSize) {
+          particles.push(particle)
+        }
+      }
+    }
+    return particles
   }
 }
