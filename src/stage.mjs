@@ -105,7 +105,10 @@ export class Stage {
             } if (row < 0 || row >= column.length) {
               continue
             }
-            nearby.push([this.zones[col][row], new Pos(c, r)])
+            nearby.push({
+              zone: this.zones[col][row],
+              offset: new Pos(c, r)
+            })
           }
         }
         // return nearby
@@ -144,12 +147,12 @@ export class Stage {
     // nothing changed
     if (!offset) { return row }
     // reached top
-    if (offset < 0 && row == 0) {
+    if (row + offset < 0) {
       particle.y = 0
       return row
     }
     // reached bottom
-    if (offset > 0 && row == this.rows - 1) {
+    if (row + offset >= this.rows) {
       particle.y = this.minDist
       return row
     }

@@ -46,12 +46,17 @@ export class Sim {
       // apply gravity
       //particle.y += this.gravity
       // repel nearby
-      for (let [neighbor, offset] of nearby) {
+      for (let neighbor of nearby) {
         // check if close enough
-        offset.x *= this.stage.minDist
-        offset.y *= this.stage.minDist
-        if (particle.distance(neighbor, offset) < this.stage.minDist) {
-          particle.repel(neighbor)
+        neighbor.offset.x *= this.stage.minDist
+        neighbor.offset.y *= this.stage.minDist
+        for (let other of neighbor.zone.particles) {
+          // ignore self
+          if (particle === neighbor.zone.particles) continue
+          const distance = particle.distance(other, neighbor.offset)
+          if (distance <= this.stage.minDist) {
+            particle.repel(other, neighbor.offset)
+          }
         }
       }
       // adjust heat/spin

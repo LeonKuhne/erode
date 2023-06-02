@@ -13,6 +13,8 @@ export class Zone {
     ctx.fillStyle = "#000000"
     const b = 1 // border
     ctx.fillRect(this.x+b-.5, this.y+b-.5, this.size-b*2-.5, this.size-b*2-.5)
+    // show the number of particles contained
+    ctx.
     // TODO: return an image here and blit it 
     for (let particle of this.particles) {
       const x = this.x + particle.x - particleSize/2 - .5

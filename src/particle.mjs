@@ -8,9 +8,9 @@ export class Particle extends Pos {
     this.forceQueue = new Pos(0, 0)
   }
 
-  repel(other, amount=.1) {
-    const deltaX = (other.x - this.x) * amount
-    const deltaY = (other.y - this.y) * amount
+  repel(other, offset, amount=.1) {
+    const deltaX = (other.x - this.x - offset.x) * amount
+    const deltaY = (other.y - this.y - offset.y) * amount
     this.forceQueue.x += deltaX
     this.forceQueue.y += deltaY
     other.forceQueue.x -= deltaX
@@ -25,8 +25,10 @@ export class Particle extends Pos {
   }
 
   distance(other, offset) {
-    return Math.sqrt(Math.pow(this.x - other.x - offset.x) 
-            + Math.pow(this.y - other.y - offset.y))
+    return (
+      (this.x - other.x - offset.x) ** 2 +  
+      (this.y - other.y - offset.y) ** 2
+    ) ** .5
   }
 
   color() {
