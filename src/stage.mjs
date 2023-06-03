@@ -152,6 +152,10 @@ export class Stage {
     // next/prev zone
     if (offset) {
       particle.x %= this.minDist
+      if (particle.x < 0) {
+        particle.x -= this.minDist * offset
+      }
+      // wrap sides
       while (offset < 0) offset += this.cols
       return (col + offset) % this.cols
     }
@@ -174,6 +178,9 @@ export class Stage {
     }
     // next/prev zone
     particle.y %= this.minDist
+    if (particle.y < 0) {
+      particle.y -= this.minDist * offset
+    }
     return row + offset
   }
 

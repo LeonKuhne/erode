@@ -7,8 +7,8 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  sim.addWater(500)
-  sim.addLand(500)
+  sim.addWater(1)
+  sim.addLand(0)
   sim.run(ctx)
   sim.edit(controls)
 

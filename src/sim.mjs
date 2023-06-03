@@ -68,9 +68,9 @@ export class Sim {
     this.stage.update((particle, nearby) => {
       // jitter
       const jit = () => (Math.random() * 2 - 1) * this.jitter 
-      //particle.force(jit(), jit())
+      particle.add(new Pos(jit(), jit()))
       // gravity
-      //particle.force(0, this.gravity)
+      particle.force(0, this.gravity)
       // repel nearby
       for (let neighbor of nearby) {
         // check if close enough

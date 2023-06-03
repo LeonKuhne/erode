@@ -1,4 +1,3 @@
-// fix particles so they can leave the zone  
 // use distant zones by
 //    summing zone as one particle with
 //    summing remainging particles of nearby zones
