@@ -17,13 +17,14 @@ canvas {
 
 #controls .group.slider {
   display: grid;
-  grid-template-columns: auto 2rem 20rem 2rem 3rem 2rem;
+  grid-template-columns: auto 3rem 20rem 3rem 3rem 2rem;
   background: white;
 }
 
 #controls * {
   background: black;
   margin: 1px !important;
+  color: white;
 }
 
 label {

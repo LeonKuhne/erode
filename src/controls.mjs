@@ -13,7 +13,7 @@ export class Controls {
   bind(name, getValue, setValue, ...settings) {
     this.ranges[name] = {getValue, setValue}
     // TEMP only sliders for now
-    const newElem = this._createSlider(name, getValue, setValue, ...settings)
+    const newElem = this._newSlider(name, getValue, setValue, ...settings)
     this.elems.push(newElem)
   }
 
@@ -23,10 +23,21 @@ export class Controls {
     return label
   }
 
-  _createSlider(name, getValue, setValue, min=0, max=1, step=0.001) {
+  _newField(name, getValue, setValue) {
+    const field = document.createElement("input")
+    field.title = name
+    field.type = "number"
+    field.value = getValue()
+    field.addEventListener("input", (e) => {
+      setValue(Number.parseFloat(e.target.value))
+    })
+    return field
+  }
+
+  _newSlider(name, getValue, setValue, min=0, max=1, step=0.001) {
     const label = this._newLabel(name)
-    const minLabel = this._newLabel(min)
-    const maxLabel = this._newLabel(max)
+    const minLabel = this._newField("min", () => min, (val) => min = val)
+    const maxLabel = this._newField("max", () => max, (val) => max = val)
     const valLabel = this._newLabel(getValue())
     const applyScale = document.createElement("input")
     applyScale.type = "checkbox"
