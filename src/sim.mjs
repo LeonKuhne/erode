@@ -1,5 +1,6 @@
 import { Stage } from "./stage.mjs"
 import { Pos } from "./pos.mjs"
+import { Controls } from "./controls.mjs"
 
 export class Sim {
 
@@ -9,6 +10,15 @@ export class Sim {
     this.jitter = .5         // max pixels to move per tick
     this.repelAmount = .01   // ratio of distance to move
     this.running = false
+    // create bindings
+    this.controls = new Controls()
+    this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
+    this.controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
+    this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount= x, 0, 10)
+  }
+
+  edit(elem) {
+    this.controls.renderTo(elem)
   }
 
   // @param pos normalized Pos between 0 and 1

@@ -14,3 +14,20 @@ canvas {
   left: 50%;
   translate: -50% -50%;
 }
+
+#controls .group.slider {
+  display: grid;
+  grid-template-columns: auto 2rem 20rem 2rem 3rem 2rem;
+  background: white;
+}
+
+#controls * {
+  background: black;
+  margin: 1px !important;
+}
+
+label {
+  display: inline;
+  text-align: right;
+  padding-right: 0.25rem;
+}
