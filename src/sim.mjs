@@ -26,9 +26,8 @@ export class Sim {
     pos.x /= this.stage.width
     pos.y /= this.stage.height
     const particles = this.stage.findParticles(pos) 
-    const zone = this.stage.getZone(pos)
     for (let particle of particles) {
-      this.stage.highlighted[color] = {zone, particle, color}
+      this.stage.highlighted[color] = {particle, color}
     }
   }
 

@@ -62,6 +62,16 @@ export class Stage {
     return this.zones[col][row]
   }
 
+  findZone(particle) {
+    for (let col of this.zones) {
+      for (let zone of col) {
+        if (zone.particles.includes(particle)) {
+          return zone
+        }
+      }
+    }
+  }
+
   // @param pos position in normalized coordinates
   getOffset(pos) {
     const xOffset = (pos.x * this.width) % this.minDist
@@ -193,7 +203,8 @@ export class Stage {
     }
     // highlight
     if (this.highlighted) {
-      for (let {zone, particle, color} of Object.values(this.highlighted)) {
+      for (let {particle, color} of Object.values(this.highlighted)) {
+        const zone = this.findZone(particle)
         particle.draw(ctx, zone, this.particleSize, color)
       }
     }
