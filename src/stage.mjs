@@ -235,23 +235,33 @@ export class Stage {
     }
     // highlight
     if (this.highlighted) {
-      const drawParticle = (particle, color) => {
-        const zone = this.findZone(particle)
-        particle.draw(ctx, zone, this.particleSize, color)
-      }
       for (let neighbor of Object.values(this.highlighted)) {
         // check if particles is a list of particles
         if (neighbor instanceof Array) {
-          for (let {particle, color} of neighbor) {
-            drawParticle(particle, color)
+          for (let n of neighbor) {
+            const {particle, color, withNeighbors} = n
+            this.drawParticle(ctx, particle, color, withNeighbors)
           }
         } else {
-          const {particle, color} = neighbor
-          drawParticle(particle, color)
+          const {particle, color, withNeighbors} = neighbor
+          this.drawParticle(ctx, particle, color, withNeighbors)
         }
       }
     }
   }
+
+  drawParticle(ctx, particle, color, withNeighbors=false) {
+    const zone = this.findZone(particle)
+    particle.draw(ctx, zone, this.particleSize, color)
+    if (withNeighbors) {
+      // find neighbors
+      const nearby = this.getNearbyParticles(particle, zone)
+      for (let n of nearby) {
+        this.drawParticle(ctx, n.particle, color)
+      }
+    }
+  }
+
 
   // @param pos position in normalized coordinates
   findParticles(pos) {

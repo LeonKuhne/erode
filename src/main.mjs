@@ -20,13 +20,6 @@ window.onload = () => {
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
-    const particles = sim.highlight(pos, "#ff0000")
-    // also highlight neighbors
-    for (let particle of particles) {
-      const zone = sim.stage.findZone(particle)
-      const nearbyParticles = sim.stage.getNearbyParticles(particle, zone)
-      const neighbors = nearbyParticles.map(n => n.particle)
-      sim.highlightParticles(neighbors, "#770000")
-    }
+    sim.highlight(pos, "#ff0000", true)
   })
 }
