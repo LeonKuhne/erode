@@ -21,5 +21,10 @@ window.onload = () => {
   canvas.addEventListener("click", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
     sim.highlight(pos, "#ff0000")
+    // also highlight neighbors
+    const neighbors = sim.findNeighbors(pos)
+    for (let neighbor of neighbors) {
+      sim.highlight(neighbor, "#770000")
+    }
   })
 }

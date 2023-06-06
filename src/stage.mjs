@@ -81,13 +81,33 @@ export class Stage {
 
   update(callback) {
     // calculate deltas 
-    this.eachNeighbors((particle, neighbors) => {
-      callback(particle, neighbors)
-    })
+    this.eachParticleNeighbors(callback)
     // apply positions and fix zones
     this.eachParticleZone((particle, zone) => {
       particle.applyForces()
       this.moveParticle(zone, particle)
+    })
+  }
+
+  eachParticleNeighbors(callback) {
+    this.eachNeighbors((particle, neighbors) => {
+      const nearbyParticles = []
+      for (let neighbor of neighbors) {
+        for (let other of neighbor.zone.particles) {
+          // ignore self
+          if (other != particle) continue
+          // out of range
+          const distance = particle.distance(other, neighbor.offset)
+          if (distance > this.minDist) continue
+          nearbyParticles.push({
+            particle: other, 
+            zone: neighbor.zone,
+            offset: neighbor.offset,
+            distance: distance,
+          })
+        }
+      }
+      callback(particle, nearbyParticles)
     })
   }
 

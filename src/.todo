@@ -1,3 +1,4 @@
+// highlight neighbors on click
 // use distant zones by
 //    summing zone as one particle with
 //    summing remainging particles of nearby zones

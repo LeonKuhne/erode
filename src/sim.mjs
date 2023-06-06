@@ -64,25 +64,17 @@ export class Sim {
   }
 
   cycle() {
-    this.stage.update((particle, nearby) => {
+    this.stage.update((particle, nearbyParticles) => {
       // jitter
       const jit = () => (Math.random() * 2 - 1) * this.jitter 
       particle.add(new Pos(jit(), jit()))
       // gravity
       particle.force(0, this.gravity)
       // repel nearby
-      for (let neighbor of nearby) {
-        // check if close enough
-        neighbor.offset.multiply(this.stage.minDist)
-        for (let other of neighbor.zone.particles) {
-          // ignore self
-          if (particle === other) continue
-          const distance = particle.distance(other, neighbor.offset)
-          if (distance <= this.stage.minDist) {
-            const amount = (1 - distance/this.stage.minDist) ** 2 
-            particle.repel(other, neighbor.offset, amount * this.repelAmount)
-          }
-        }
+      for (let {particle: other, offset, distance} of nearbyParticles) {
+        offset.multiply(this.stage.minDist)
+        const amount = (1 - distance/this.stage.minDist) ** 2 
+        particle.repel(other, offset, amount * this.repelAmount)
       }
       // adjust heat/spin
       // TODO
