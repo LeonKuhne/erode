@@ -7,8 +7,8 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  sim.addWater(500)
-  sim.addLand(500)
+  sim.addWater(100)
+  sim.addLand(100)
   sim.run(ctx)
   sim.edit(controls)
 
@@ -20,11 +20,13 @@ window.onload = () => {
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
-    sim.highlight(pos, "#ff0000")
+    const particles = sim.highlight(pos, "#ff0000")
     // also highlight neighbors
-    const neighbors = sim.findNeighbors(pos)
-    for (let neighbor of neighbors) {
-      sim.highlight(neighbor, "#770000")
+    for (let particle of particles) {
+      const zone = sim.stage.findZone(particle)
+      const nearbyParticles = sim.stage.getNearbyParticles(particle, zone)
+      const neighbors = nearbyParticles.map(n => n.particle)
+      sim.highlightParticles(neighbors, "#770000")
     }
   })
 }

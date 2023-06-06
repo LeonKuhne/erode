@@ -89,25 +89,37 @@ export class Stage {
     })
   }
 
-  eachParticleNeighbors(callback) {
-    this.eachNeighbors((particle, neighbors) => {
-      const nearbyParticles = []
-      for (let neighbor of neighbors) {
-        for (let other of neighbor.zone.particles) {
-          // ignore self
-          if (other != particle) continue
-          // out of range
-          const distance = particle.distance(other, neighbor.offset)
-          if (distance > this.minDist) continue
-          nearbyParticles.push({
-            particle: other, 
-            zone: neighbor.zone,
-            offset: neighbor.offset,
-            distance: distance,
-          })
-        }
+  findNeighbors(particle) {
+    const zone = this.findZone(particle)
+    return this.getNearbyParticles(particle, zone)
+  }
+
+  getNearbyParticles(particle, zone) {
+    const particles = []
+    for (let {zone: nearZone, offset} of this.getNearby(zone)) {
+      for (let other of nearZone.particles) {
+        // ignore self
+        if (other != particle) continue
+        // out of range
+        const distance = particle.distance(other, offset)
+        if (distance > this.minDist) continue
+        particles.push({
+          particle: other, 
+          zone: zone,
+          offset: offset,
+          distance: distance,
+        })
       }
-      callback(particle, nearbyParticles)
+    }
+    return particles
+  }
+
+  eachParticleNeighbors(callback) {
+    this.eachZone(zone => {
+      for (let particle of zone.particles) {
+        const nearbyParticles = this.getNearbyParticles(particle, zone)
+        callback(particle, nearbyParticles)
+      }
     })
   }
 
@@ -223,9 +235,20 @@ export class Stage {
     }
     // highlight
     if (this.highlighted) {
-      for (let {particle, color} of Object.values(this.highlighted)) {
+      const drawParticle = (particle, color) => {
         const zone = this.findZone(particle)
         particle.draw(ctx, zone, this.particleSize, color)
+      }
+      for (let neighbor of Object.values(this.highlighted)) {
+        // check if particles is a list of particles
+        if (neighbor instanceof Array) {
+          for (let {particle, color} of neighbor) {
+            drawParticle(particle, color)
+          }
+        } else {
+          const {particle, color} = neighbor
+          drawParticle(particle, color)
+        }
       }
     }
   }

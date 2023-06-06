@@ -26,10 +26,17 @@ export class Sim {
     pos.x /= this.stage.width
     pos.y /= this.stage.height
     const particles = this.stage.findParticles(pos) 
+    this.highlightParticles(particles, color)
+    return particles
+  }
+
+  highlightParticles(particles, color) {
+    this.stage.highlighted[color] = []
     for (let particle of particles) {
-      this.stage.highlighted[color] = {particle, color}
+      this.stage.highlighted[color].push({particle, color})
     }
   }
+
 
   updateCanvas(canvas) {
     this.stage.updateSize(canvas.width, canvas.height)  
