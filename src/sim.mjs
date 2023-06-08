@@ -49,18 +49,12 @@ export class Sim {
     canvas.height = this.stage.height
   }
 
-  addWater(count=1) {
-    for (let x=0;x<count;x++) {
-      const pos = new Pos(Math.random(), Math.random() * .5)
-      this.stage.addParticle(pos, {name: "water"})
-    }
+  addWater(pos=new Pos(Math.random(), Math.random()/2)) {
+    this.stage.addParticle(pos, {name: "water", mass: 1})
   }
 
-  addLand(count=1) {
-    for (let x=0;x<count;x++) {
-      const pos = new Pos(Math.random(), Math.random() * .5 + .5)
-      this.stage.addParticle(pos, {name: "land"})
-    }
+  addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
+    this.stage.addParticle(pos, {name: "land"})
   }
 
   run(ctx) {

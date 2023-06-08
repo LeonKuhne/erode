@@ -7,8 +7,6 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  sim.addWater(0)
-  sim.addLand(0)
   sim.run(ctx)
   sim.edit(controls)
   const mousePos = new Pos(0, 0)
@@ -16,8 +14,7 @@ window.onload = () => {
   // on 'a' key pressed add water
   document.addEventListener("keypress", (e) => {
     if (e.key == 'a') {
-      const pos = mousePos.clone()
-      sim.stage.addParticle(pos, {name: "water"})
+      sim.addWater(mousePos.clone())
     }
   })
 

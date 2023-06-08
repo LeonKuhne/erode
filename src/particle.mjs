@@ -12,6 +12,7 @@ export class Particle extends Pos {
     const delta = other.clone()
     delta.add(offset)
     delta.subtract(this)
+    delta.normalize()
     delta.multiply(amount)
     other.forceQueue.add(delta)
     this.forceQueue.subtract(delta)

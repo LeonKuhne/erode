@@ -31,6 +31,11 @@ export class Pos {
     return (delta.x ** 2 + delta.y ** 2) ** .5 
   }
 
+  normalize() {
+    const magnitude = (this.x ** 2 + this.y ** 2) ** .5
+    this.divide(magnitude)
+  }
+
   clone() {
     return new Pos(this.x, this.y)
   }
