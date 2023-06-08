@@ -7,19 +7,29 @@ window.onload = () => {
   const ctx = canvas.getContext("2d")
   const sim = new Sim()
   sim.updateCanvas(canvas)
-  sim.addWater(100)
-  sim.addLand(100)
+  sim.addWater(0)
+  sim.addLand(0)
   sim.run(ctx)
   sim.edit(controls)
+  const mousePos = new Pos(0, 0)
+
+  // on 'a' key pressed add water
+  document.addEventListener("keypress", (e) => {
+    if (e.key == 'a') {
+      const pos = mousePos.clone()
+      sim.stage.addParticle(pos, {name: "water"})
+    }
+  })
 
   // on mouse hover highlight hovered particle
   canvas.addEventListener("mousemove", (e) => {
-    const pos = new Pos(e.offsetX, e.offsetY)
-    sim.highlight(pos, "#00ff00")
+    mousePos.x = e.offsetX
+    mousePos.y = e.offsetY
+    sim.highlight(mousePos, "#00ff00", "#00aa00", 1)
   })
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
-    sim.highlight(pos, "#ff0000", true)
+    sim.highlight(pos, "#ff0000", "#aa0000", 1)
   })
 }

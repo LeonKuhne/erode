@@ -10,6 +10,7 @@ export class Sim {
     this.jitter = .5         // max pixels to move per tick
     this.repelAmount = .01   // ratio of distance to move
     this.running = false
+    this.tick_delay = 50 // ms per tick
     // create bindings
     this.controls = new Controls()
     this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
@@ -22,10 +23,13 @@ export class Sim {
   }
 
   // @param pos normalized Pos between 0 and 1
-  highlight(pos, color, neighborsToo=false) {
+  highlight(pos, color, neighborsToo=false, count=null) {
     pos.x /= this.stage.width
     pos.y /= this.stage.height
     const particles = this.stage.findParticles(pos) 
+    if (count) {
+      particles.splice(count)
+    }
     this.highlightParticles(particles, color, neighborsToo)
     return particles
   }
@@ -38,7 +42,6 @@ export class Sim {
       })
     }
   }
-
 
   updateCanvas(canvas) {
     this.stage.updateSize(canvas.width, canvas.height)  
@@ -60,13 +63,13 @@ export class Sim {
     }
   }
 
-  run(ctx, delay=20) {
+  run(ctx) {
     this.running = true
     const loop = () => {
       if (this.running) {
         this.cycle()
         this.stage.draw(ctx)
-        setTimeout(loop, delay)
+        setTimeout(loop, this.tick_delay)
       }
     }
     loop()

@@ -99,13 +99,15 @@ export class Stage {
     for (let {zone: nearZone, offset} of this.getNearby(zone)) {
       for (let other of nearZone.particles) {
         // ignore self
-        if (other != particle) continue
+        if (other == particle) continue
         // out of range
-        const distance = particle.distance(other, offset)
+        const nOffset = offset.clone()
+        nOffset.multiply(this.minDist)
+        const distance = particle.distance(other, nOffset)
         if (distance > this.minDist) continue
         particles.push({
           particle: other, 
-          zone: zone,
+          zone: nearZone,
           offset: offset,
           distance: distance,
         })
@@ -250,14 +252,14 @@ export class Stage {
     }
   }
 
-  drawParticle(ctx, particle, color, withNeighbors=false) {
+  drawParticle(ctx, particle, color, withNeighborsColored=null) {
     const zone = this.findZone(particle)
     particle.draw(ctx, zone, this.particleSize, color)
-    if (withNeighbors) {
+    if (withNeighborsColored) {
       // find neighbors
       const nearby = this.getNearbyParticles(particle, zone)
       for (let n of nearby) {
-        this.drawParticle(ctx, n.particle, color)
+        n.particle.draw(ctx, n.zone, this.particleSize, withNeighborsColored)
       }
     }
   }
