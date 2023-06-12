@@ -13,8 +13,10 @@ window.onload = () => {
 
   // on 'a' key pressed add water
   document.addEventListener("keypress", (e) => {
-    if (e.key == 'a') {
+    if (e.key == '1') {
       sim.addWater(mousePos.clone())
+    } else if (e.key == '2') {
+      sim.addLand(mousePos.clone())
     }
   })
 

@@ -54,7 +54,7 @@ export class Sim {
   }
 
   addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
-    this.stage.addParticle(pos, {name: "land"})
+    this.stage.addParticle(pos, {name: "land", mass: 2})
   }
 
   run(ctx) {
