@@ -9,6 +9,12 @@ export class Zone extends Pos {
     this.size = size
   }
 
+  fix(size) {
+    this.x = this.col * size
+    this.y = this.row * size
+    this.size = size
+  }
+
   draw(ctx, particleSize) {
     // draw zone border 
     const b = 1 // border

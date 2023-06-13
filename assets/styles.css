@@ -15,6 +15,16 @@ canvas {
   translate: -50% -50%;
 }
 
+#controls {
+  opacity: 0.1;
+  z-index: 1;
+  position: relative;
+}
+
+#controls:hover {
+  opacity: 0.9;
+}
+
 #controls .group.slider {
   display: grid;
   grid-template-columns: auto 3rem 20rem 3rem 3rem 2rem;
