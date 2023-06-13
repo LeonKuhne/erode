@@ -4,10 +4,8 @@ import { Pos } from "./pos.mjs"
 window.onload = () => {
   const canvas = document.getElementById("sim")
   const controls = document.getElementById("controls")
-  const ctx = canvas.getContext("2d")
-  const sim = new Sim()
-  sim.updateCanvas(canvas)
-  sim.run(ctx)
+  const sim = new Sim(canvas)
+  sim.run()
   sim.edit(controls)
   const mousePos = new Pos(0, 0)
 

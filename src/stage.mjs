@@ -16,6 +16,12 @@ export class Stage {
     this.highlighted = {}
   }
 
+  updateCanvas(canvas) {
+    this.updateSize(canvas.width, canvas.height)
+    canvas.width = this.width
+    canvas.height = this.height
+  }
+
   updateGrid(size) {
     this.updateSize(this.width, this.height, size)
   }
@@ -53,6 +59,10 @@ export class Stage {
     } else {
       for (let x=oldCols;x<newCols;x++) {
         this.zones.push([])
+        for (let y=0;y<oldRows;y++) {
+          const zone = new Zone(x, y, this.minDist)
+          this.zones[x].push(zone)
+        }
       }
     }
     for (let x=0;x<this.zones.length;x++) { // TODO i dont think this line belongs here

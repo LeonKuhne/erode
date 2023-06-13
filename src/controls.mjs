@@ -34,7 +34,7 @@ export class Controls {
     return field
   }
 
-  _newSlider(name, getValue, setValue, min=0, max=1, step=0.001) {
+  _newSlider(name, getValue, setValue, min=0, max=1, scaled=true, step=0.001) {
     const label = this._newLabel(name)
     const slider = document.createElement("input")
     const minLabel = this._newField("min", () => min, (val) => {
@@ -49,10 +49,13 @@ export class Controls {
     const applyScale = document.createElement("input")
     applyScale.type = "checkbox"
     applyScale.title = "apply scale"
-    applyScale.checked = true
+    applyScale.checked = scaled
     applyScale.classList.add("scale")
     slider.type = "range"
     slider.title = name
+    slider.min = 0
+    slider.max = 1
+    slider.step = step
     slider.value = (getValue() - min) / (max - min)
     slider.addEventListener("input", (e) => {
       let val = Number.parseFloat(e.target.value)
@@ -64,10 +67,6 @@ export class Controls {
       setValue(val)
       valLabel.innerText = Math.round(val / step) * step
     })
-    // set max and min values for slider
-    slider.min = 0
-    slider.max = 1
-    slider.step = step
     const group = document.createElement("div")
     group.classList.add("group", "slider")
     group.appendChild(label)
