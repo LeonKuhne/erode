@@ -14,13 +14,17 @@ export class Sim {
     this.repelAmount = .01   // ratio of distance to move
     this.running = false
     this.tickDelay = 50 // ms per tick
+    this.width = canvas.width
+    this.height = canvas.height
     // create bindings
     this.controls = new Controls()
     this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
     this.controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
     this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount= x, 0, 10)
     this.controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
-    this.controls.bind("grid size", () => this.stage.minDist, (x) => this.stage.updateGrid(x), 0, 100, false)
+    this.controls.bind("grid size", () => this.stage.minDist, (x) => {
+      this.stage.updateCanvas(this.canvas, this.width, this.height, x)
+    }, 0, 100, false)
   }
 
   edit(elem) {

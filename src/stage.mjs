@@ -16,14 +16,10 @@ export class Stage {
     this.highlighted = {}
   }
 
-  updateCanvas(canvas) {
-    this.updateSize(canvas.width, canvas.height)
+  updateCanvas(canvas, width=canvas.width, height=canvas.height, size=this.minDist) {
+    this.updateSize(width, height, size)
     canvas.width = this.width
     canvas.height = this.height
-  }
-
-  updateGrid(size) {
-    this.updateSize(this.width, this.height, size)
   }
 
   updateSize(width, height, size=this.minDist) {
@@ -35,56 +31,81 @@ export class Stage {
     this.fixZones(newCols, newRows)
   }
 
-  fixZones(newCols, newRows) {
-    const oldCols = this.cols
-    const oldRows = this.rows
-    // update shape
-    this.cols = newCols
-    this.rows = newRows
-    // remove columns
+  // assumes oldCols > newCols
+  removeColumns(oldCols, newCols) {
+    const deletedCols = this.zones.splice(newCols, oldCols - newCols)
+    // move particles from deleted zones
+    for (let col of deletedCols) {
+      for (let zone of col) {
+        for (let particle of zone.particles) {
+          const newCol = zone.col % oldCols
+          // add particle to new zone
+          this.zones[newCol][zone.row].particles.push(particle)
+        }
+        zone.particles = []
+      }
+    }
+  }
+
+  // assumes oldRows > newRows
+  removeRows(oldRows, newRows) {
+    // remove rows
+    for (let x=0;x<this.zones.length;x++) {
+      const deletedRows = this.zones[x].splice(oldRows, newRows)
+      for (let zone of deletedRows) {
+        for (let particle of zone.particles) {
+          const newRow = zone.row % newRows
+          this.zones[zone.col][newRow].particles.push(particle)
+        }
+        zone.particles = []
+      }
+    }
+  }
+
+  // assumes newCols > oldCols
+  addColums(oldCols, newCols) {
+    for (let x=oldCols;x<newCols;x++) {
+      this.zones.push([])
+    }
+    this.addRows(0, this.rows)
+  }
+
+  // assumes newRows > oldRows
+  addRows(oldRows, newRows) {
+    for (let x=0;x<this.cols;x++) {
+      for (let y=oldRows-1;y<newRows;y++) {
+        const zone = new Zone(x, y, this.minDist)
+        this.zones[x].push(zone)
+      }
+    }
+  }
+
+  fixColumns(oldCols, newCols) {
     if (newCols < oldCols) { 
-      const deletedCols = this.zones.splice(0, newCols)
-      // move particles from deleted zones
-      for (let col of deletedCols) {
-        for (let zone of col) {
-          for (let particle of zone.particles) {
-            const newCol = zone.col % oldCols
-            // add particle to new zone
-            this.zones[newCol][zone.row].particles.push(particle)
-          }
-          zone.particles = []
-        }
-      }
-    // add columns
+      this.removeColumns(oldCols, newCols)
     } else {
-      for (let x=oldCols;x<newCols;x++) {
-        this.zones.push([])
-        for (let y=0;y<oldRows;y++) {
-          const zone = new Zone(x, y, this.minDist)
-          this.zones[x].push(zone)
-        }
-      }
+      this.addColums(oldCols, newCols)
     }
-    for (let x=0;x<this.zones.length;x++) { // TODO i dont think this line belongs here
-      // remove rows
-      if (newRows < oldRows) { 
-        const deletedRows = this.zones[x].splice(0, newRows)
-        for (let zone of deletedRows) {
-          for (let particle of zone.particles) {
-            const newRow = zone.row % newRows
-            this.zones[zone.col][newRow].particles.push(particle)
-          }
-        }
-      // add rows
-      } else {
-        for (let y=oldRows;y<newRows;y++) {
-          const zone = new Zone(x, y, this.minDist)
-          this.zones[x].push(zone)
-        }
-      }
+    this.cols = newCols
+  }
+
+  fixRows(oldRows, newRows) {
+    if (newRows < oldRows) { 
+      this.removeRows(oldRows, newRows)
+    } else {
+      this.addRows(oldRows, newRows)
     }
-    // fix zone positions
+    this.rows = newRows
+  }
+
+  fixZones(newCols, newRows) {
+    console.log(`adjusting from ${this.cols}x${this.rows} -> ${newCols}x${newRows}`)
+    // update shape 
+    this.fixColumns(this.cols, newCols)
+    this.fixRows(this.rows, newRows)
+    // fix zone positions 
     this.eachZone(zone => zone.fix(this.minDist))
+    console.log(`resulting shape ${this.cols}x${this.rows} == ${this.zones.length}x${this.zones ? this.zones[0].length : null}`)
   }
 
   addParticle(pos, features) {
