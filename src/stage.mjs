@@ -48,10 +48,10 @@ export class Stage {
   }
 
   // assumes oldRows > newRows
-  removeRows(oldRows, newRows) {
+  removeRows(newRows) {
     // remove rows
     for (let x=0;x<this.zones.length;x++) {
-      const deletedRows = this.zones[x].splice(oldRows, newRows)
+      const deletedRows = this.zones[x].splice(this.rows, newRows)
       for (let zone of deletedRows) {
         for (let particle of zone.particles) {
           const newRow = zone.row % newRows
@@ -63,46 +63,49 @@ export class Stage {
   }
 
   // assumes newCols > oldCols
-  addColums(oldCols, newCols) {
-    for (let x=oldCols;x<newCols;x++) {
+  addColums(cols) {
+    for (let x=this.cols;x<cols;x++) {
       this.zones.push([])
-    }
-    this.addRows(0, this.rows)
-  }
-
-  // assumes newRows > oldRows
-  addRows(oldRows, newRows) {
-    for (let x=0;x<this.cols;x++) {
-      for (let y=oldRows-1;y<newRows;y++) {
+      for (let y=0;y<this.rows;y++) {
         const zone = new Zone(x, y, this.minDist)
         this.zones[x].push(zone)
       }
     }
   }
 
-  fixColumns(oldCols, newCols) {
-    if (newCols < oldCols) { 
-      this.removeColumns(oldCols, newCols)
-    } else {
-      this.addColums(oldCols, newCols)
+  // assumes newRows > oldRows
+  addRows(rows) {
+    for (let x=0;x<this.cols;x++) {
+      for (let y=this.rows;y<rows;y++) {
+        const zone = new Zone(x, y, this.minDist)
+        this.zones[x].push(zone)
+      }
     }
-    this.cols = newCols
   }
 
-  fixRows(oldRows, newRows) {
-    if (newRows < oldRows) { 
-      this.removeRows(oldRows, newRows)
+  fixCols(cols) {
+    if (cols < this.cols) { 
+      this.removeColumns(cols)
     } else {
-      this.addRows(oldRows, newRows)
+      this.addColums(cols)
     }
-    this.rows = newRows
+    this.cols = cols
+  }
+
+  fixRows(rows) {
+    if (rows < this.rows) { 
+      this.removeRows(rows)
+    } else {
+      this.addRows(rows)
+    }
+    this.rows = rows
   }
 
   fixZones(newCols, newRows) {
     console.log(`adjusting from ${this.cols}x${this.rows} -> ${newCols}x${newRows}`)
     // update shape 
-    this.fixColumns(this.cols, newCols)
-    this.fixRows(this.rows, newRows)
+    this.fixCols(newCols)
+    this.fixRows(newRows)
     // fix zone positions 
     this.eachZone(zone => zone.fix(this.minDist))
     console.log(`resulting shape ${this.cols}x${this.rows} == ${this.zones.length}x${this.zones ? this.zones[0].length : null}`)
