@@ -1,1 +1,1 @@
-(see blog)[https://blog.leonk.dev]
+[see blog](https://blog.leonk.dev)
