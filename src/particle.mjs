@@ -23,7 +23,7 @@ export class Particle extends Pos {
     delta.subtract(this)
     delta.normalize()
     delta.multiply(amount)
-    delta.multiply(this.feat('mass'))
+    delta.multiply(this.feat('mass')/other.feat('mass'))
     other.forceQueue.subtract(delta)
   }
 
