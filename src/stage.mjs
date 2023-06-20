@@ -31,14 +31,20 @@ export class Stage {
     this.fixZones(newCols, newRows)
   }
 
+  color(r, g, b) {
+    this.eachZone(zone => {
+      zone.color = `rgb(${r}, ${g}, ${b})`
+    })
+  }
+
   // assumes oldCols > newCols
-  removeColumns(oldCols, newCols) {
-    const deletedCols = this.zones.splice(newCols, oldCols - newCols)
+  removeColumns(newCols) {
+    const deletedCols = this.zones.splice(newCols, this.cols - newCols)
     // move particles from deleted zones
     for (let col of deletedCols) {
       for (let zone of col) {
         for (let particle of zone.particles) {
-          const newCol = zone.col % oldCols
+          const newCol = zone.col % this.cols 
           // add particle to new zone
           this.zones[newCol][zone.row].particles.push(particle)
         }
@@ -83,6 +89,20 @@ export class Stage {
     }
   }
 
+  fixZones(newCols, newRows) {
+    if (this.cols != newCols) { 
+      this.fixCols(newCols)
+    } if (this.rows != newRows) {
+      this.fixRows(newRows) 
+    }
+    const oldCols = this.cols
+    const oldRows = this.rows 
+    this.eachZone(zone => zone.fix(this.minDist))
+    if (this.cols != this.zones.length || this.zones && this.rows != this.zones[0].length) {
+      console.warn(`failed fixing zones!!! ${oldCols}x${oldRows} -> ${this.cols}x${this.rows} != ${this.zones.length}x${this.zones ? this.zones[0].length : null}`)
+    }
+  }
+
   fixCols(cols) {
     if (cols < this.cols) { 
       this.removeColumns(cols)
@@ -99,16 +119,6 @@ export class Stage {
       this.addRows(rows)
     }
     this.rows = rows
-  }
-
-  fixZones(newCols, newRows) {
-    console.log(`adjusting from ${this.cols}x${this.rows} -> ${newCols}x${newRows}`)
-    // update shape 
-    this.fixCols(newCols)
-    this.fixRows(newRows)
-    // fix zone positions 
-    this.eachZone(zone => zone.fix(this.minDist))
-    console.log(`resulting shape ${this.cols}x${this.rows} == ${this.zones.length}x${this.zones ? this.zones[0].length : null}`)
   }
 
   addParticle(pos, features) {
@@ -293,6 +303,8 @@ export class Stage {
 
   draw(ctx) {
     ctx.clearRect(0, 0, this.width, this.height)
+    ctx.fillStyle = "#000000"
+    ctx.fillRect(0, 0, this.width, this.height)
     for (let col of this.zones) {
       for (let zone of col) {
         zone.draw(ctx, this.particleSize)

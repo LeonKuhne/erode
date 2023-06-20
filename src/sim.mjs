@@ -12,6 +12,7 @@ export class Sim {
     this.gravity = .1        // pixels pull down per tick 
     this.jitter = .5         // max pixels to move per tick
     this.repelAmount = .01   // ratio of distance to move
+    this.attractAmount = .005   // ratio of distance to move
     this.running = false
     this.tickDelay = 50 // ms per tick
     this.width = canvas.width
@@ -20,11 +21,17 @@ export class Sim {
     this.controls = new Controls()
     this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
     this.controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
-    this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount= x, 0, 10)
+    this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount = x, 0, 10)
+    this.controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmonut = x, 0, 10)
     this.controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
+    this.controls.bind("particle size", () => this.stage.particleSize, (x) => this.stage.particleSize = x, 0, 100)
     this.controls.bind("grid size", () => this.stage.minDist, (x) => {
       this.stage.updateCanvas(this.canvas, this.width, this.height, x)
     }, 0, 100, false)
+    this.controls.bind("grid brightness", () => this.stage.bg, (x) => {
+      x = Number.parseInt(x)
+      this.stage.color(x,x,x)
+    }, 0, 255, false)
   }
 
   edit(elem) {
@@ -53,11 +60,21 @@ export class Sim {
   }
 
   addWater(pos=new Pos(Math.random(), Math.random()/2)) {
-    this.stage.addParticle(pos, {name: "water", mass: 1})
+    this.stage.addParticle(pos, {
+      name: "water", 
+      mass: 1, 
+      friction: 0.01,
+      color: "#0000ff",
+    })
   }
 
   addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
-    this.stage.addParticle(pos, {name: "land", mass: 2})
+    this.stage.addParticle(pos, {
+      name: "land",
+      mass: 20,
+      friction: 0.9,
+      color: "#8b4513",
+    })
   }
 
   run() {
@@ -79,11 +96,15 @@ export class Sim {
       particle.add(new Pos(jit(), jit()))
       // gravity
       particle.force(0, this.gravity)
-      // repel nearby
       for (let {particle: other, offset, distance} of nearbyParticles) {
         offset.multiply(this.stage.minDist)
         const amount = (1 - distance/this.stage.minDist) ** 2 
-        particle.repel(other, offset, amount * this.repelAmount)
+        // repel other particles
+        particle.attract(other, offset, -1 * amount * this.repelAmount)
+        // attract similar
+        if (particle.name == other.name) {
+          particle.attract(other, offset, amount * this.attractAmount)
+        }
       }
       // adjust heat/spin
       // TODO

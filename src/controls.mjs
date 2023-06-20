@@ -1,6 +1,5 @@
 export class Controls {
   constructor() {
-    this.ranges = {}
     this.elems = []
   }
 
@@ -11,9 +10,16 @@ export class Controls {
   }
 
   bind(name, getValue, setValue, ...settings) {
-    this.ranges[name] = {getValue, setValue}
-    // TEMP only sliders for now
-    const newElem = this._newSlider(name, getValue, setValue, ...settings)
+    // set values from local storage if found
+    const storeKey = `controls-${name}`
+    const storedValue = localStorage.getItem(storeKey)
+    if (storedValue) { setValue(storedValue) }
+    const setAndStoreValue = (value) => {
+      localStorage.setItem(storeKey, value)
+      setValue(value)
+    } 
+    // create, only sliders for now
+    const newElem = this._newSlider(name, getValue, setAndStoreValue, ...settings)
     this.elems.push(newElem)
   }
 
@@ -34,7 +40,7 @@ export class Controls {
     return field
   }
 
-  _newSlider(name, getValue, setValue, min=0, max=1, scaled=true, step=0.001) {
+  _newSlider(name, getValue, setValue, min=0, max=1, scaled=true, step=0.000001) {
     const label = this._newLabel(name)
     const slider = document.createElement("input")
     const minLabel = this._newField("min", () => min, (val) => {
@@ -77,5 +83,4 @@ export class Controls {
     group.appendChild(applyScale)
     return group
   }
-
 }

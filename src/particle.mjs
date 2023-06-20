@@ -8,14 +8,14 @@ export class Particle extends Pos {
     this.features = features
   }
 
-  repel(other, offset, amount) {
+  attract(other, offset, amount) {
     const delta = other.clone()
     delta.add(offset)
     delta.subtract(this)
     delta.normalize()
     delta.multiply(amount)
-    other.forceQueue.add(delta)
-    this.forceQueue.subtract(delta)
+    delta.multiply(this.features['mass'])
+    other.forceQueue.subtract(delta)
   }
 
   force(x, y) {
@@ -29,16 +29,7 @@ export class Particle extends Pos {
     this.forceQueue.y = 0
   }
 
-  color() {
-    // TODO use 'rgb(r,g,b)' for dynamic
-    if (this.features['name'] == "water") {
-      return '#0000ff' // blue
-    } else {
-      return '#aa6633' // brown
-    }
-  }
-
-  draw(ctx, zone, particleSize, color=this.color()) { 
+  draw(ctx, zone, particleSize, color=this.features['color']) { 
     const x = zone.x + this.x - particleSize/2 - .5
     const y = zone.y + this.y - particleSize/2 - .5
     ctx.fillStyle = color

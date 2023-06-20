@@ -7,6 +7,7 @@ export class Zone extends Pos {
     this.col = col
     this.row = row
     this.size = size
+    this.color = "#aaaaaa"
   }
 
   fix(size) {
@@ -16,13 +17,10 @@ export class Zone extends Pos {
   }
 
   draw(ctx, particleSize) {
-    // draw zone border 
-    const b = 1 // border
-    ctx.fillStyle = "#000000"
-    ctx.fillRect(this.x+b-.5, this.y+b-.5, this.size-b*2-.5, this.size-b*2-.5)
-    // indicate contained particles
-    ctx.fillStyle = "#aaaaaa"
     ctx.font = "18px Arial"
+    ctx.strokeStyle = this.color
+    ctx.fillStyle = this.color
+    ctx.strokeRect(this.x-.5, this.y-.5, this.size-.5, this.size-.5)
     ctx.fillText(this.particles.length, this.x-.5 + this.size/3, this.y-.5 + this.size*3/4)
     for (let particle of this.particles) {
       particle.draw(ctx, this, particleSize)
