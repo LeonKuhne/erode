@@ -17,7 +17,7 @@ export class Sim {
     this.particlesPerTick = 3 
     this.brightness = 0
     this.stage.setBrightness(this.brightness)
-    this.waterMass = 4.9502
+    this.waterMass = 1.9502
     this.landMass = 4.1217
     this.waterFriction = 0.1
     this.landFriction = 0.9
