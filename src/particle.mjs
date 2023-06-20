@@ -6,6 +6,7 @@ export class Particle extends Pos {
     super(pos.x, pos.y)
     this.forceQueue = new Pos(0, 0)
     this.features = features
+    this.vel = new Pos(0, 0)
   }
 
   feat(key) {
@@ -31,14 +32,16 @@ export class Particle extends Pos {
     this.forceQueue.y += y
   }
 
-  apply(heatSpeed) {
-    this._applyForces()
+  apply(airFriction, heatSpeed) {
+    this._applyForces(airFriction)
     this._applyHeat(heatSpeed)
     this._resetForces()
   }
 
-  _applyForces() {
-    this.add(this.forceQueue)
+  _applyForces(friction) {
+    this.vel.add(this.forceQueue)
+    this.vel.multiply(1-friction)
+    this.add(this.vel)
   }
 
   _applyHeat(speed) {

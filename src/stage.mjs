@@ -8,6 +8,7 @@ export class Stage {
   constructor(gridSize, particleSize) {
     this.minDist = gridSize
     this.particleSize = particleSize
+    this.airFriction = 0.01
     this.heatSpeed = 0.5
     this.cols = 0
     this.rows = 0
@@ -158,7 +159,7 @@ export class Stage {
     this.eachParticleNeighbors(callback)
     // apply positions and fix zones
     this.eachParticleZone((particle, zone) => {
-      particle.apply(this.heatSpeed)
+      particle.apply(this.airFriction, this.heatSpeed)
       this.moveParticle(zone, particle)
     })
   }
@@ -287,11 +288,13 @@ export class Stage {
     // reached top
     if (row + offset < 0) {
       particle.y = 0
+      particle.vel.y = 0
       return row
     }
     // reached bottom
     if (row + offset >= this.rows) {
       particle.y = this.minDist
+      particle.vel.y = 0
       return row
     }
     // next/prev zone

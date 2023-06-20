@@ -45,6 +45,7 @@ export class Sim {
     this.controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
     this.controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
     this.controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
+    this.controls.bind("air friction", () => this.stage.airFriction, (x) => this.stage.airFriction = x, 0, 1, false)
     this.controls.bind("heat speed", () => this.stage.heatSpeed, (x) => this.stage.heatSpeed = x, 0, 1, false)
   }
 
