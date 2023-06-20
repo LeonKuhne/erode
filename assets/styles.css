@@ -20,13 +20,25 @@ canvas {
 }
 
 #controls {
-  opacity: 0.1;
+  opacity: 0.5;
   z-index: 1;
   position: relative;
+  height: max-content;
+  transform: translate(0, -85%);
+  text-align: center;
+  font-size: 24px;
 }
 
 #controls:hover {
   opacity: 0.9;
+  transform: translate(0, 0%);
+  animation-name: exposeDown;
+  animation-duration: 0.25s;
+}
+
+@keyframes exposeDown {
+  from { transform: translate(0, -85%); }
+  to { transform: translate(0, 0%); }
 }
 
 #controls .group.slider {
@@ -39,6 +51,7 @@ canvas {
   background: black;
   margin: 1px !important;
   color: white;
+  font-size: 16px;
 }
 
 label {

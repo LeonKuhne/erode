@@ -4,8 +4,8 @@ export class Controls {
   }
 
   renderTo(parent) {
-    for (let elem of this.elems) {
-      parent.appendChild(elem)
+    for (let elem of this.elems.reverse()) {
+      parent.prepend(elem)
     }
   }
 
