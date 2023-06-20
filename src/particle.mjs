@@ -31,16 +31,39 @@ export class Particle extends Pos {
     this.forceQueue.y += y
   }
 
-  applyForces() {
+  apply(heatSpeed) {
+    this._applyForces()
+    this._applyHeat(heatSpeed)
+    this._resetForces()
+  }
+
+  _applyForces() {
     this.add(this.forceQueue)
+  }
+
+  _applyHeat(speed) {
+    const heatDelta = this.forceQueue.diagonal()
+    let nextTemp = this.feat("temperature")
+    nextTemp += (heatDelta * 2 - 1) * speed
+    nextTemp = Math.tanh(nextTemp)
+    this.features['temperature'] = nextTemp 
+  }
+
+  _resetForces() {
     this.forceQueue.x = 0
     this.forceQueue.y = 0
   }
 
-  draw(ctx, zone, particleSize, color=this.feat('color')) { 
+  draw(ctx, zone, particleSize, color=null) {
+    if (!color) {
+      color = this.feat('color')
+      const red = Math.floor((this.feat("temperature") + 1) / 2 * 256)
+      ctx.fillStyle = `rgb(${red}, ${color[1]}, ${color[2]})`
+    } else {
+      ctx.fillStyle = color
+    }
     const x = zone.x + this.x - particleSize/2 - .5
     const y = zone.y + this.y - particleSize/2 - .5
-    ctx.fillStyle = color
     ctx.fillRect(x, y, particleSize, particleSize)
   }
 }

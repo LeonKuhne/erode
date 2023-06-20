@@ -28,7 +28,11 @@ export class Pos {
     const delta = other.clone()
     delta.add(offset)
     delta.subtract(this)
-    return (delta.x ** 2 + delta.y ** 2) ** .5 
+    return delta.diagonal()
+  }
+
+  diagonal() {
+    return (this.x ** 2 + this.y ** 2) ** .5 
   }
 
   normalize() {

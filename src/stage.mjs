@@ -8,6 +8,7 @@ export class Stage {
   constructor(gridSize, particleSize) {
     this.minDist = gridSize
     this.particleSize = particleSize
+    this.heatSpeed = 0.5
     this.cols = 0
     this.rows = 0
     this.width = 0
@@ -157,7 +158,7 @@ export class Stage {
     this.eachParticleNeighbors(callback)
     // apply positions and fix zones
     this.eachParticleZone((particle, zone) => {
-      particle.applyForces()
+      particle.apply(this.heatSpeed)
       this.moveParticle(zone, particle)
     })
   }

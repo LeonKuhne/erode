@@ -45,6 +45,7 @@ export class Sim {
     this.controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
     this.controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
     this.controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
+    this.controls.bind("heat speed", () => this.stage.heatSpeed, (x) => this.stage.heatSpeed = x, 0, 1, false)
   }
 
   edit(elem) {
@@ -78,7 +79,8 @@ export class Sim {
         name: "water", 
         mass: () => this.waterMass, 
         friction: () => this.waterFriction,
-        color: "#0000ff",
+        color: [0,0,255],
+        temperature: 1,
       })
     }
   }
@@ -89,7 +91,8 @@ export class Sim {
         name: "land",
         mass: () => this.landMass,
         friction: () => this.landFriction,
-        color: "#8b4513",
+        color: [0,255,0],
+        temperature: 1,
       })
     }
   }
@@ -123,8 +126,6 @@ export class Sim {
           particle.attract(other, offset, amount * this.attractAmount)
         }
       }
-      // adjust heat/spin
-      // TODO
     })
   }
 }
