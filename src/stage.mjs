@@ -31,9 +31,9 @@ export class Stage {
     this.fixZones(newCols, newRows)
   }
 
-  color(r, g, b) {
+  setBrightness(x) {
     this.eachZone(zone => {
-      zone.color = `rgb(${r}, ${g}, ${b})`
+      zone.color = `rgb(${x}, ${x}, ${x})`
     })
   }
 

@@ -8,13 +8,21 @@ export class Particle extends Pos {
     this.features = features
   }
 
+  feat(key) {
+    const feature = this.features[key]
+    if (feature instanceof Function) {
+      return feature()
+    }
+    return feature
+  }
+
   attract(other, offset, amount) {
     const delta = other.clone()
     delta.add(offset)
     delta.subtract(this)
     delta.normalize()
     delta.multiply(amount)
-    delta.multiply(this.features['mass'])
+    delta.multiply(this.feat('mass'))
     other.forceQueue.subtract(delta)
   }
 
@@ -29,7 +37,7 @@ export class Particle extends Pos {
     this.forceQueue.y = 0
   }
 
-  draw(ctx, zone, particleSize, color=this.features['color']) { 
+  draw(ctx, zone, particleSize, color=this.feat('color')) { 
     const x = zone.x + this.x - particleSize/2 - .5
     const y = zone.y + this.y - particleSize/2 - .5
     ctx.fillStyle = color

@@ -12,8 +12,11 @@ export class Controls {
   bind(name, getValue, setValue, ...settings) {
     // set values from local storage if found
     const storeKey = `controls-${name}`
-    const storedValue = localStorage.getItem(storeKey)
-    if (storedValue) { setValue(storedValue) }
+    let storedValue = localStorage.getItem(storeKey)
+    if (storedValue) { 
+      storedValue = Number.parseFloat(storedValue)
+      setValue(storedValue)
+    }
     const setAndStoreValue = (value) => {
       localStorage.setItem(storeKey, value)
       setValue(value)
@@ -51,18 +54,20 @@ export class Controls {
       max = val
       slider.dispatchEvent(new Event("input"))
     })
-    const valLabel = this._newLabel(getValue())
-    const applyScale = document.createElement("input")
-    applyScale.type = "checkbox"
-    applyScale.title = "apply scale"
-    applyScale.checked = scaled
-    applyScale.classList.add("scale")
     slider.type = "range"
     slider.title = name
     slider.min = 0
     slider.max = 1
     slider.step = step
     slider.value = (getValue() - min) / (max - min)
+    let roundValue = (value) => Math.round(value / slider.step) * slider.step
+    const valLabel = this._newLabel(roundValue(getValue()))
+    const applyScale = document.createElement("input")
+    applyScale.type = "checkbox"
+    applyScale.title = "apply scale"
+    applyScale.checked = scaled
+    applyScale.classList.add("scale")
+    // adjust slider
     slider.addEventListener("input", (e) => {
       let val = Number.parseFloat(e.target.value)
       if (applyScale.checked) {
@@ -71,6 +76,7 @@ export class Controls {
       val *= (max - min)
       val += min
       setValue(val)
+      valLabel.innerText = 
       valLabel.innerText = Math.round(val / step) * step
     })
     const group = document.createElement("div")

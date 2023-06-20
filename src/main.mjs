@@ -2,14 +2,17 @@ import { Sim } from "./sim.mjs"
 import { Pos } from "./pos.mjs"
 
 window.onload = () => {
+  const border = 120
   const canvas = document.getElementById("sim")
+  canvas.width = document.body.clientWidth - border
+  canvas.height = document.body.clientHeight - border
   const controls = document.getElementById("controls")
   const sim = new Sim(canvas)
   sim.run()
   sim.edit(controls)
   const mousePos = new Pos(0, 0)
 
-  // on 'a' key pressed add water
+  // add particles
   document.addEventListener("keypress", (e) => {
     if (e.key == '1') {
       sim.addWater(mousePos.clone())

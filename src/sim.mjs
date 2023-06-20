@@ -9,12 +9,19 @@ export class Sim {
     this.ctx = canvas.getContext("2d")
     this.stage = new Stage(50, 10) // grid size, particle size 
     this.stage.updateCanvas(canvas)
-    this.gravity = .1        // pixels pull down per tick 
-    this.jitter = .5         // max pixels to move per tick
-    this.repelAmount = .01   // ratio of distance to move
-    this.attractAmount = .005   // ratio of distance to move
+    this.gravity = .2685      // pixels pull down per tick 
+    this.jitter = .0166       // max pixels to move per tick
+    this.repelAmount = 1.5022 // ratio of distance to move
+    this.attractAmount = .4422 // ratio of distance to move
+    this.tickDelay = 0        // ms per tick
+    this.particlesPerTick = 3 
+    this.brightness = 0
+    this.stage.setBrightness(this.brightness)
+    this.waterMass = 4.9502
+    this.landMass = 4.1217
+    this.waterFriction = 0.1
+    this.landFriction = 0.9
     this.running = false
-    this.tickDelay = 50 // ms per tick
     this.width = canvas.width
     this.height = canvas.height
     // create bindings
@@ -22,16 +29,22 @@ export class Sim {
     this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
     this.controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
     this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount = x, 0, 10)
-    this.controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmonut = x, 0, 10)
+    this.controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmount = x, 0, 10)
     this.controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
     this.controls.bind("particle size", () => this.stage.particleSize, (x) => this.stage.particleSize = x, 0, 100)
     this.controls.bind("grid size", () => this.stage.minDist, (x) => {
       this.stage.updateCanvas(this.canvas, this.width, this.height, x)
     }, 0, 100, false)
-    this.controls.bind("grid brightness", () => this.stage.bg, (x) => {
+    this.controls.bind("grid brightness", () => this.brightness, (x) => {
       x = Number.parseInt(x)
-      this.stage.color(x,x,x)
+      this.brigthness = x
+      this.stage.setBrightness(x)
     }, 0, 255, false)
+    this.controls.bind("brush size", () => this.particlesPerTick, (x) => this.particlesPerTick = Number.parseInt(x), 1, 10, false)
+    this.controls.bind("water mass", () => this.waterMass, (x) => this.waterMass = x, 0, 10)
+    this.controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
+    this.controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
+    this.controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
   }
 
   edit(elem) {
@@ -60,21 +73,25 @@ export class Sim {
   }
 
   addWater(pos=new Pos(Math.random(), Math.random()/2)) {
-    this.stage.addParticle(pos, {
-      name: "water", 
-      mass: 1, 
-      friction: 0.01,
-      color: "#0000ff",
-    })
+    for (let x=0;x<this.particlesPerTick;x++) {
+      this.stage.addParticle(pos, {
+        name: "water", 
+        mass: () => this.waterMass, 
+        friction: () => this.waterFriction,
+        color: "#0000ff",
+      })
+    }
   }
 
   addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
-    this.stage.addParticle(pos, {
-      name: "land",
-      mass: 20,
-      friction: 0.9,
-      color: "#8b4513",
-    })
+    for (let x=0;x<this.particlesPerTick;x++) {
+      this.stage.addParticle(pos, {
+        name: "land",
+        mass: () => this.landMass,
+        friction: () => this.landFriction,
+        color: "#8b4513",
+      })
+    }
   }
 
   run() {
@@ -102,7 +119,7 @@ export class Sim {
         // repel other particles
         particle.attract(other, offset, -1 * amount * this.repelAmount)
         // attract similar
-        if (particle.name == other.name) {
+        if (particle.feat('name') == other.feat('name')) {
           particle.attract(other, offset, amount * this.attractAmount)
         }
       }
