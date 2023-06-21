@@ -1,11 +1,21 @@
 export class Controls {
   constructor() {
-    this.elems = []
+    this.elems = {}
   }
 
   renderTo(parent) {
-    for (let elem of this.elems.reverse()) {
-      parent.prepend(elem)
+    // remove bottom elements
+    const bottomElems = parent.querySelectorAll(".bottom")
+    for (const elem of bottomElems) {
+      parent.removeChild(elem)
+    }
+    // add controls
+    for (let {elem} of Object.values(this.elems)) {
+      parent.appendChild(elem)
+    }
+    // add back bottom elements
+    for (const elem of bottomElems) {
+      parent.appendChild(elem)
     }
   }
 
@@ -23,7 +33,7 @@ export class Controls {
     } 
     // create, only sliders for now
     const newElem = this._newSlider(name, getValue, setAndStoreValue, ...settings)
-    this.elems.push(newElem)
+    this.elems[name] = { elem: newElem, get: getValue, set: setValue }
   }
 
   _newLabel(name) {

@@ -1,6 +1,5 @@
 import { Stage } from "./stage.mjs"
 import { Pos } from "./pos.mjs"
-import { Controls } from "./controls.mjs"
 
 export class Sim {
 
@@ -24,33 +23,30 @@ export class Sim {
     this.running = false
     this.width = canvas.width
     this.height = canvas.height
-    // create bindings
-    this.controls = new Controls()
-    this.controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 10)
-    this.controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
-    this.controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount = x, 0, 10)
-    this.controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmount = x, 0, 10)
-    this.controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
-    this.controls.bind("particle size", () => this.stage.particleSize, (x) => this.stage.particleSize = x, 0, 100)
-    this.controls.bind("grid size", () => this.stage.minDist, (x) => {
+  }
+
+  bind(controls) {
+    controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 1)
+    controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
+    controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount = x, 0, 5)
+    controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmount = x, 0, 5)
+    controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
+    controls.bind("particle size", () => this.stage.particleSize, (x) => this.stage.particleSize = x, 0, 50, false)
+    controls.bind("grid size", () => this.stage.minDist, (x) => {
       this.stage.updateCanvas(this.canvas, this.width, this.height, x)
     }, 0, 100, false)
-    this.controls.bind("grid brightness", () => this.brightness, (x) => {
+    controls.bind("grid brightness", () => this.brightness, (x) => {
       x = Number.parseInt(x)
       this.brigthness = x
       this.stage.setBrightness(x)
     }, 0, 255, false)
-    this.controls.bind("brush size", () => this.particlesPerTick, (x) => this.particlesPerTick = Number.parseInt(x), 1, 10, false)
-    this.controls.bind("water mass", () => this.waterMass, (x) => this.waterMass = x, 0, 10)
-    this.controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
-    this.controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
-    this.controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
-    this.controls.bind("air friction", () => this.stage.airFriction, (x) => this.stage.airFriction = x, 0, 1, false)
-    this.controls.bind("heat speed", () => this.stage.heatSpeed, (x) => this.stage.heatSpeed = x, 0, 1, false)
-  }
-
-  edit(elem) {
-    this.controls.renderTo(elem)
+    controls.bind("brush size", () => this.particlesPerTick, (x) => this.particlesPerTick = Number.parseInt(x), 1, 10, false)
+    controls.bind("water mass", () => this.waterMass, (x) => this.waterMass = x, 0, 10)
+    controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
+    controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
+    controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
+    controls.bind("air friction", () => this.stage.airFriction, (x) => this.stage.airFriction = x, 0, 1, false)
+    controls.bind("heat speed", () => this.stage.heatSpeed, (x) => this.stage.heatSpeed = x, 0, 1, false)
   }
 
   // @param pos normalized Pos between 0 and 1

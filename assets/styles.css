@@ -11,7 +11,7 @@ body {
 
 canvas {
   margin: auto;
-  background: grey;
+  background: black;
   display: block;
   position: absolute;
   top: 50%;
@@ -24,27 +24,45 @@ canvas {
   z-index: 1;
   position: relative;
   height: max-content;
-  transform: translate(0, -85%);
-  text-align: center;
-  font-size: 24px;
+  animation-duration: 0.25s;
+  animation-timing-function: cubic-bezier(1, 0, 0, 1);
+  transform: translate(0, -90%);
 }
 
-#controls:hover {
+#controls .text {
+  font-size: 24px !important;
+  text-align: center;
+}
+
+#controls.hide {
+  animation-name: exposeUp;
+}
+
+#controls.show {
   opacity: 0.9;
   transform: translate(0, 0%);
   animation-name: exposeDown;
-  animation-duration: 0.25s;
 }
 
 @keyframes exposeDown {
-  from { transform: translate(0, -85%); }
+  from { transform: translate(0, -90%); }
   to { transform: translate(0, 0%); }
+} @keyframes exposeUp {
+  from { transform: translate(0, 0%); }
+  to { transform: translate(0, -90%); }
+}
+
+#controls .group {
+  display: grid;
+  background: white;
 }
 
 #controls .group.slider {
-  display: grid;
-  grid-template-columns: auto 3rem 20rem 3rem 3rem 2rem;
-  background: white;
+  grid-template-columns: 9rem 3rem auto 3rem 3rem 2rem;
+}
+
+#controls .group.config {
+  grid-template-columns: 9rem auto 8rem;
 }
 
 #controls * {
@@ -52,10 +70,12 @@ canvas {
   margin: 1px !important;
   color: white;
   font-size: 16px;
+  line-height: 16px;
 }
 
 label {
   display: inline;
   text-align: right;
   padding-right: 0.25rem;
+  padding: 0.25rem;
 }
