@@ -1,7 +1,18 @@
-// introduce temperatures
-// - pressure causes heat, heat rises. lack of pressure cools
-// - hot moves more than cold
-// - optionally: strike surface with light particles (sun rays) to heat up particles
+// reduce heat fall of rate
+
+// make a particle that reperesents the player that can be controlled
+
+// make sure mass is used when queueing up force
+
+// particles divide mass under high heat
+// particles combine mass nuder low heat
+
+// dont worry about limestone until you have sand made out of dirt
+// then you could spawn bones in the water to mix with sand to make limestone
+
+// incorperate heat into the attract/repel functions by multiplying delta and heat ratio,
+// so that more heat means more movement
+
 // use distant zones by
 //    summing zone as one particle with
 //    summing remainging particles of nearby zones
