@@ -18,7 +18,7 @@ export class Sim {
       "repel amount": { val: 2.11, max: 5, log: true },
       "attract amount": { val: 1.53, max: 5, log: true },
       "tick delay": { val: 0, max: 100, log: true },
-      "particle size": { val: 3, max: 50 },
+      "particle size": { max: 50, get: () => this.stage.particleSize, set: (x) => this.stage.particleSize = x },
       "grid size": { max: 100, get: () => this.stage.minDist, set: (x) => { 
         this.stage.updateCanvas(this.canvas, this.width, this.height, x)
       } },
