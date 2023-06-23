@@ -1,11 +1,7 @@
-// reduce heat fall of rate
-
-// make a particle that reperesents the player that can be controlled
-
-// make sure mass is used when queueing up force
-
 // particles divide mass under high heat
 // particles combine mass nuder low heat
+
+// make a particle that reperesents the player that can be controlled
 
 // dont worry about limestone until you have sand made out of dirt
 // then you could spawn bones in the water to mix with sand to make limestone
