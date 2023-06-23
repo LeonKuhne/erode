@@ -12,14 +12,13 @@ window.onload = () => {
   const mousePos = new Pos(0, 0)
   window.controls = new Controls()
   window.config = new Config(window.controls.elems)
-  const sim = new Sim(canvas)
-  sim.bind(window.controls)
+  window.sim = new Sim(canvas, window.controls)
   // render controls to element
   window.controls.renderTo(controlsElem)
   window.config.save("default")
   window.config.load("-")
   window.config.select("-")
-  sim.run()
+  window.sim.run()
 
   // show controls
   let lastAdjustment = 0
@@ -49,9 +48,9 @@ window.onload = () => {
   // add particles
   document.addEventListener("keypress", (e) => {
     if (e.key == '1') {
-      sim.addWater(mousePos.clone())
+      window.sim.addWater(mousePos.clone())
     } else if (e.key == '2') {
-      sim.addLand(mousePos.clone())
+      window.sim.addLand(mousePos.clone())
     }
   })
 
@@ -59,12 +58,12 @@ window.onload = () => {
   canvas.addEventListener("mousemove", (e) => {
     mousePos.x = e.offsetX
     mousePos.y = e.offsetY
-    sim.highlight(mousePos, "#00ff00", "#00aa00", 1)
+    window.sim.highlight(mousePos, "#00ff00", "#00aa00", 1)
   })
 
   // on mouse click highlight particle neighbors
   canvas.addEventListener("click", (e) => {
     const pos = new Pos(e.offsetX, e.offsetY)
-    sim.highlight(pos, "#ff0000", "#aa0000", 1)
+    window.sim.highlight(pos, "#ff0000", "#aa0000", 1)
   })
 }

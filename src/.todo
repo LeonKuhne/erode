@@ -1,6 +1,3 @@
-// incorperate heat into the attract/repel functions by multiplying delta and heat ratio,
-// so that more heat means more movement
-
 // reduce heat fall of rate
 
 // make a particle that reperesents the player that can be controlled

@@ -3,7 +3,7 @@ import { Pos } from "./pos.mjs"
 
 export class Sim {
 
-  constructor(canvas) {
+  constructor(canvas, controls) {
     this.canvas = canvas
     this.ctx = canvas.getContext("2d")
     this.stage = new Stage(50, 10) // grid size, particle size 
@@ -12,7 +12,7 @@ export class Sim {
     this.width = canvas.width
     this.height = canvas.height
     this.defaultSettings = { min: 0, max: 1, log: true }
-    this.sliders = {
+    this.settings = {
       "gravity": { val: 0.2685 },
       "jitter": { val: 0.0166, max: 10 },
       "repel amount": { val: 1.5022, max: 5 },
@@ -35,26 +35,28 @@ export class Sim {
       "air friction": { "get": () => this.stage.airFriction, "set": (x) => this.stage.airFriction = x, log: false },
       "heat speed": { "get": () => this.stage.heatSpeed, "set": (x) => this.stage.heatSpeed = x, log: false },
     }
-    this.stage.setBrightness(this.sliders["grid brightness"].val)
+    this._bind(controls)
+    this.stage.setBrightness(this.settings["grid brightness"].get())
   }
 
-  bind(controls) {
-    // bind sliders to values
-    for (let [name, slider] of Object.entries(this.sliders)) {
+  _bind(controls) {
+    // bind settings to values
+    for (let name of Object.keys(this.settings)) {
       // merge with default settings
-      slider = { ...this.defaultSettings, ...slider }
+      const setting = { ...this.defaultSettings, ...this.settings[name] }
       // setup values
-      if (slider.val !== undefined) {
-        slider.get = () => slider.val
-        slider.set = (x) => slider.val = x
-        if (slider.preset) {
-          slider.set = (x) => {
-            slider.val = slider.preset(x)
+      if (setting.val !== undefined) {
+        setting.get = () => setting.val
+        setting.set = (x) => setting.val = x
+        if (setting.preset) {
+          setting.set = (x) => {
+            setting.val = setting.preset(x)
           }
         }
       }
+      this.settings[name] = setting
       // bind to controls
-      const { get, set, min, max, log } = slider
+      const { get, set, min, max, log } = setting 
       controls.bind(name, get, set, min, max, log)
     }
   }
@@ -81,25 +83,25 @@ export class Sim {
   }
 
   addWater(pos=new Pos(Math.random(), Math.random()/2)) {
-    for (let x=0;x<this.particlesPerTick;x++) {
+    for (let x=0;x<this.settings["brush size"].get();x++) {
       this.stage.addParticle(pos, {
         name: "water", 
-        mass: () => this.waterMass, 
-        friction: () => this.waterFriction,
+        mass: this.settings["water mass"].get, 
+        friction: this.settings["water friction"].get,
         color: [0,0,255],
-        temperature: 1,
+        heat: 1,
       })
     }
   }
 
   addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
-    for (let x=0;x<this.particlesPerTick;x++) {
+    for (let x=0;x<this.settings["brush size"].get();x++) {
       this.stage.addParticle(pos, {
         name: "land",
-        mass: () => this.landMass,
-        friction: () => this.landFriction,
+        mass: () => this.settings["land mass"].get(),
+        friction: () => this.settings["land friction"].get(),
         color: [0,255,0],
-        temperature: 1,
+        heat: 1,
       })
     }
   }
@@ -110,7 +112,7 @@ export class Sim {
       if (this.running) {
         this.cycle()
         this.stage.draw(this.ctx)
-        setTimeout(loop, this.tickDelay)
+        setTimeout(loop, this.settings["tick delay"].get())
       }
     }
     loop()
@@ -119,18 +121,19 @@ export class Sim {
   cycle() {
     this.stage.update((particle, nearbyParticles) => {
       // jitter
-      const jit = () => (Math.random() * 2 - 1) * this.jitter 
+      const jit = () => (Math.random() * 2 - 1) * this.settings["jitter"].get()
       particle.add(new Pos(jit(), jit()))
       // gravity
-      particle.force(0, this.gravity)
+      particle.force(0, this.settings["gravity"].get()) 
       for (let {particle: other, offset, distance} of nearbyParticles) {
-        offset.multiply(this.stage.minDist)
-        const amount = (1 - distance/this.stage.minDist) ** 2 
+        const gridSize = this.settings["grid size"].get()
+        offset.multiply(gridSize)
+        const amount = (1 - distance/gridSize) ** 2 
         // repel other particles
-        particle.attract(other, offset, -1 * amount * this.repelAmount)
+        particle.attract(other, offset, -1 * amount * this.settings["repel amount"].get())
         // attract similar
         if (particle.feat('name') == other.feat('name')) {
-          particle.attract(other, offset, amount * this.attractAmount)
+          particle.attract(other, offset, amount * this.settings["attract amount"].get())
         }
       }
     })
