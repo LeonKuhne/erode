@@ -41,8 +41,7 @@ export class Particle extends Pos {
 
   _applyForces(friction) {
     this.vel.add(this.forceQueue)
-    // the more mass, the more friction 
-    this.vel.multiply((1 - friction) * this.feat("mass"))
+    this.vel.multiply(1 - friction)
     this.add(this.vel)
   }
 

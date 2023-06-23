@@ -8,8 +8,8 @@ export class Stage {
   constructor(gridSize, particleSize) {
     this.minDist = gridSize
     this.particleSize = particleSize
-    this.airFriction = 0.1
-    this.heatSpeed = 0.5
+    this.airFriction = 0.35
+    this.heatSpeed = 0.08
     this.cols = 0
     this.rows = 0
     this.width = 0
