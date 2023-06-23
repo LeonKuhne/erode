@@ -6,21 +6,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="src/main.mjs" type="module"></script>
-  <script src="src/config.mjs" type="module"></script>
   <link rel="stylesheet" href="assets/styles.css"></link>
 <body>
   <canvas id="sim"></canvas>
   <div id="controls">
     <div class="text">Particle Cave Generator</div>
     <div class="group config">
-      <label>load config</label>
-      <select id="config-saves" onclick="event.target instanceof Option && loadConfig()"></select>
-      <button onclick="removeConfig()">remove</button>
-    </div>
-    <div class="group config">
       <label>save config</label>
       <input id="config-name" placeholder="name" />
-      <button onclick="saveConfig()">save</button>
+      <button onclick="window.config.save()">save</button>
+    </div>
+    <div class="group config">
+      <label>load config</label>
+      <select id="config-saves" onclick="event.target instanceof Option && window.config.load()"></select>
+      <button onclick="window.config.remove()">remove</button>
     </div>
     <div class="text bottom">'1' for water, '2' for dirt</div>
   </div>

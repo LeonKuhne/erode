@@ -1,63 +1,79 @@
-// load in config options from local storage
-const configNamesKey = "config-names"
-const configNameKey = name => `config-${name}`
-const configNames = () => JSON.parse(localStorage.getItem(configNamesKey) || '["default"]')
-const configSaves = document.querySelector("#config-saves")
+export class Config {
 
-const updateOptions = (name) => {
-  configSaves.replaceChildren([])
-  for (const name of configNames()) {
-    let option = document.createElement("option")
-    option.innerText = name
-    configSaves.appendChild(option)
+  constructor(settings) {
+    this.namesKey = "config-names"
+    this.nameKey = name => `config-${name}`
+    this.saves = document.querySelector("#config-saves")
+    this.updateOptions()
+    this.select("default")
+    this.settings = settings 
   }
-  configSaves.value = name
-}
-updateOptions("default")
 
-window.saveConfig = (name=null) => {
-  const nameField = document.querySelector("#config-name")
-  name = name || nameField.value
-  if (!name) {
-    alert("cannot save config with empty name")
-    return
+  names() {
+    const storedNames = localStorage.getItem(this.namesKey)
+    if (!storedNames) {
+      return ["default"]
+    }
+    return JSON.parse(storedNames)
   }
-  console.log("todo save config with name", name)
-  // save the config
-  const configs = window.controls.elems
-  let config = {}
-  for (const name of Object.keys(configs)) {
-    config[name] = configs[name].get()
-  }
-  localStorage.setItem(configNameKey(name), JSON.stringify(config))
-  // update names 
-  let newNames = configNames()
-  if (!newNames.includes(name)) {
-    newNames.push(name)
-    localStorage.setItem(configNamesKey, JSON.stringify(newNames))
-    updateOptions(name)
-  }
-  nameField.value = ""
-}
 
-window.removeConfig = (name=configSaves.value) => {
-  if (name == "default") {
-    alert("you cant delete the default config")
-    return
+  select(name) {
+    console.log("selecting", name)
+    this.saves.value = name
   }
-  localStorage.removeItem(configNameKey(name))
-  // update names 
-  let names = configNames()
-  names.splice(names.indexOf(name), 1)
-  localStorage.setItem(configNamesKey, JSON.stringify(names))
-  updateOptions(names[names.length-1])
-}
 
-window.loadConfig = (name=configSaves.value) => {
-  console.log("todo load config with name", name)
-  const config = JSON.parse(localStorage.getItem(`config-${name}`) || "{}")
-  for (const name in config) {
-    const val = config[name]
-    window.controls.elems[name].set(val)
+  updateOptions() {
+    this.saves.replaceChildren([])
+    for (const name of this.names()) {
+      let option = document.createElement("option")
+      option.innerText = name
+      this.saves.appendChild(option)
+    }
+  }
+
+  save(name=null) {
+    const nameField = document.querySelector("#config-name")
+    name = name || nameField.value
+    if (!name) {
+      alert("cannot save config with empty name")
+      return
+    }
+    // save the config
+    let config = {}
+    for (const name of Object.keys(this.settings)) {
+      config[name] = this.settings[name].get()
+    }
+    localStorage.setItem(this.nameKey(name), JSON.stringify(config))
+    // update names 
+    let newNames = this.names()
+    if (!newNames.includes(name)) {
+      newNames.push(name)
+      localStorage.setItem(this.namesKey, JSON.stringify(newNames))
+      this.updateOptions()
+    }
+    else { nameField.value = "" }
+    this.select(name)
+  }
+
+  remove(name=this.saves.value) {
+    if (name == "default") {
+      alert("you cant delete the default config")
+      return
+    }
+    localStorage.removeItem(this.nameKey(name))
+    // update names 
+    let names = this.names()
+    names.splice(names.indexOf(name), 1)
+    localStorage.setItem(this.namesKey, JSON.stringify(names))
+    this.updateOptions()
+    this.select(names[names.length-1])
+  }
+
+  load(name=this.saves.value) {
+    const config = JSON.parse(localStorage.getItem(`config-${name}`) || "{}")
+    for (const name in config) {
+      const val = config[name]
+      this.settings[name].set(val)
+    }
   }
 }

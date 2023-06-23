@@ -9,6 +9,16 @@ export class Controls {
     for (const elem of bottomElems) {
       parent.removeChild(elem)
     }
+    // add header line
+    const header = document.createElement("div")
+    header.classList.add("group", "slider", "header")
+    header.appendChild(this._newLabel("name"))
+    header.appendChild(this._newLabel("min"))
+    header.appendChild(this._newLabel("slider"))
+    header.appendChild(this._newLabel("max"))
+    header.appendChild(this._newLabel("value"))
+    header.appendChild(this._newLabel("log"))
+    parent.appendChild(header)
     // add controls
     for (let {elem} of Object.values(this.elems)) {
       parent.appendChild(elem)
@@ -20,20 +30,9 @@ export class Controls {
   }
 
   bind(name, getValue, setValue, ...settings) {
-    // set values from local storage if found
-    const storeKey = `controls-${name}`
-    let storedValue = localStorage.getItem(storeKey)
-    if (storedValue) { 
-      storedValue = Number.parseFloat(storedValue)
-      setValue(storedValue)
-    }
-    const setAndStoreValue = (value) => {
-      localStorage.setItem(storeKey, value)
-      setValue(value)
-    } 
-    // create, only sliders for now
-    const newElem = this._newSlider(name, getValue, setAndStoreValue, ...settings)
-    this.elems[name] = { elem: newElem, get: getValue, set: setValue }
+    this._newSlider(name, getValue, setValue, (newElem, setValue) => {
+      this.elems[name] = { elem: newElem, get: getValue, set: setValue }
+    }, ...settings)
   }
 
   _newLabel(name) {
@@ -53,7 +52,8 @@ export class Controls {
     return field
   }
 
-  _newSlider(name, getValue, setValue, min=0, max=1, scaled=true, step=0.000001) {
+  _newSlider(name, getValue, setValue, callback, min=0, max=1, scaled=true, step=0.000001) {
+    const scale = val => (val - min) / (max - min)
     const label = this._newLabel(name)
     const slider = document.createElement("input")
     const minLabel = this._newField("min", () => min, (val) => {
@@ -69,7 +69,7 @@ export class Controls {
     slider.min = 0
     slider.max = 1
     slider.step = step
-    slider.value = (getValue() - min) / (max - min)
+    slider.value = scale(getValue())
     let roundValue = (value) => Math.round(value / slider.step) * slider.step
     const valLabel = this._newLabel(roundValue(getValue()))
     const applyScale = document.createElement("input")
@@ -77,6 +77,13 @@ export class Controls {
     applyScale.title = "apply scale"
     applyScale.checked = scaled
     applyScale.classList.add("scale")
+    // on set value also update slider AND keep default behavior
+    const origSetValue = setValue
+    setValue = (val) => {
+      origSetValue(val)
+      slider.value = scale(val)
+      valLabel.innerText = roundValue(val)
+    }
     // adjust slider
     slider.addEventListener("input", (e) => {
       let val = Number.parseFloat(e.target.value)
@@ -85,10 +92,11 @@ export class Controls {
       }
       val *= (max - min)
       val += min
-      setValue(val)
-      valLabel.innerText = 
       valLabel.innerText = Math.round(val / step) * step
+      setValue(val)
+      window.config.save("-", this.elems)
     })
+    // create group
     const group = document.createElement("div")
     group.classList.add("group", "slider")
     group.appendChild(label)
@@ -97,6 +105,6 @@ export class Controls {
     group.appendChild(maxLabel)
     group.appendChild(valLabel)
     group.appendChild(applyScale)
-    return group
+    callback(group, setValue)
   }
 }

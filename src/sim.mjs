@@ -8,45 +8,55 @@ export class Sim {
     this.ctx = canvas.getContext("2d")
     this.stage = new Stage(50, 10) // grid size, particle size 
     this.stage.updateCanvas(canvas)
-    this.gravity = .2685      // pixels pull down per tick 
-    this.jitter = .0166       // max pixels to move per tick
-    this.repelAmount = 1.5022 // ratio of distance to move
-    this.attractAmount = .4422 // ratio of distance to move
-    this.tickDelay = 0        // ms per tick
-    this.particlesPerTick = 3 
-    this.brightness = 0
-    this.stage.setBrightness(this.brightness)
-    this.waterMass = 1.9502
-    this.landMass = 4.1217
-    this.waterFriction = 0.1
-    this.landFriction = 0.9
     this.running = false
     this.width = canvas.width
     this.height = canvas.height
+    this.defaultSettings = { min: 0, max: 1, log: true }
+    this.sliders = {
+      "gravity": { val: 0.2685 },
+      "jitter": { val: 0.0166, max: 10 },
+      "repel amount": { val: 1.5022, max: 5 },
+      "attract amount": { val: 0.4422, max: 5 },
+      "tick delay": { val: 0, max: 100 },
+      "particle size": { val: 3, max: 50, log: false },
+      "grid size": { max: 100, log: false, get: () => this.stage.minDist, set: (x) => { 
+        this.stage.updateCanvas(this.canvas, this.width, this.height, x)
+      } },
+      "grid brightness": { val: 0, max: 255, log: false, preset: (x) => {
+        x = Number.parseInt(x)
+        this.stage.setBrightness(x)
+        return x
+      } },
+      "brush size": { val: 3, preset: (x) => Number.parseInt(x), min: 1, max: 10, log: false },
+      "water mass": { val: 1.9502, "max": 10 },
+      "land mass": { val: 4.1217, max: 100 },
+      "water friction": { val: 0.1, max: 3 },
+      "land friction": { val: 0.9, max: 3 },
+      "air friction": { "get": () => this.stage.airFriction, "set": (x) => this.stage.airFriction = x, log: false },
+      "heat speed": { "get": () => this.stage.heatSpeed, "set": (x) => this.stage.heatSpeed = x, log: false },
+    }
+    this.stage.setBrightness(this.sliders["grid brightness"].val)
   }
 
   bind(controls) {
-    controls.bind("gravity", () => this.gravity, (x) => this.gravity = x, 0, 1)
-    controls.bind("jitter", () => this.jitter, (x) => this.jitter = x, 0, 10)
-    controls.bind("repel amount", () => this.repelAmount, (x) => this.repelAmount = x, 0, 5)
-    controls.bind("attract amount", () => this.attractAmount, (x) => this.attractAmount = x, 0, 5)
-    controls.bind("tick delay", () => this.tickDelay, (x) => this.tickDelay = x, 0, 100)
-    controls.bind("particle size", () => this.stage.particleSize, (x) => this.stage.particleSize = x, 0, 50, false)
-    controls.bind("grid size", () => this.stage.minDist, (x) => {
-      this.stage.updateCanvas(this.canvas, this.width, this.height, x)
-    }, 0, 100, false)
-    controls.bind("grid brightness", () => this.brightness, (x) => {
-      x = Number.parseInt(x)
-      this.brigthness = x
-      this.stage.setBrightness(x)
-    }, 0, 255, false)
-    controls.bind("brush size", () => this.particlesPerTick, (x) => this.particlesPerTick = Number.parseInt(x), 1, 10, false)
-    controls.bind("water mass", () => this.waterMass, (x) => this.waterMass = x, 0, 10)
-    controls.bind("land mass", () => this.landMass, (x) => this.landMass = x, 0, 100)
-    controls.bind("water friction", () => this.waterFriction, (x) => this.waterFriction = x, 0, 3)
-    controls.bind("land friction", () => this.landFriction, (x) => this.landFriction = x, 0, 3)
-    controls.bind("air friction", () => this.stage.airFriction, (x) => this.stage.airFriction = x, 0, 1, false)
-    controls.bind("heat speed", () => this.stage.heatSpeed, (x) => this.stage.heatSpeed = x, 0, 1, false)
+    // bind sliders to values
+    for (let [name, slider] of Object.entries(this.sliders)) {
+      // merge with default settings
+      slider = { ...this.defaultSettings, ...slider }
+      // setup values
+      if (slider.val !== undefined) {
+        slider.get = () => slider.val
+        slider.set = (x) => slider.val = x
+        if (slider.preset) {
+          slider.set = (x) => {
+            slider.val = slider.preset(x)
+          }
+        }
+      }
+      // bind to controls
+      const { get, set, min, max, log } = slider
+      controls.bind(name, get, set, min, max, log)
+    }
   }
 
   // @param pos normalized Pos between 0 and 1

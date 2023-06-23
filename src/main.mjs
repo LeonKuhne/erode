@@ -1,6 +1,7 @@
 import { Sim } from "./sim.mjs"
 import { Pos } from "./pos.mjs"
 import { Controls } from "./controls.mjs"
+import { Config } from "./config.mjs"
 
 window.onload = () => {
   const border = 120
@@ -8,13 +9,17 @@ window.onload = () => {
   canvas.width = document.body.clientWidth - border
   canvas.height = document.body.clientHeight - border
   const controlsElem = document.getElementById("controls")
+  const mousePos = new Pos(0, 0)
   window.controls = new Controls()
+  window.config = new Config(window.controls.elems)
   const sim = new Sim(canvas)
   sim.bind(window.controls)
+  // render controls to element
   window.controls.renderTo(controlsElem)
-  window.saveConfig("default")
+  window.config.save("default")
+  window.config.load("-")
+  window.config.select("-")
   sim.run()
-  const mousePos = new Pos(0, 0)
 
   // show controls
   let lastAdjustment = 0

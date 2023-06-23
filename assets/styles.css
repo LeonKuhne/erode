@@ -54,11 +54,10 @@ canvas {
 
 #controls .group {
   display: grid;
-  background: white;
 }
 
 #controls .group.slider {
-  grid-template-columns: 9rem 3rem auto 3rem 3rem 2rem;
+  grid-template-columns: 9rem 3rem auto 3rem 5rem 2rem;
 }
 
 #controls .group.config {
