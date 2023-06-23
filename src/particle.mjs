@@ -24,6 +24,7 @@ export class Particle extends Pos {
     delta.normalize()
     delta.multiply(amount)
     delta.multiply(this.feat('mass')/other.feat('mass'))
+    delta.multiply(this.feat('heat')/other.feat('heat'))
     other.forceQueue.subtract(delta)
   }
 

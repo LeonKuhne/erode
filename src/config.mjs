@@ -18,8 +18,9 @@ export class Config {
   }
 
   select(name) {
-    console.log("selecting", name)
-    this.saves.value = name
+    if (this.names().includes(name)) {
+      this.saves.value = name
+    }
   }
 
   updateOptions() {

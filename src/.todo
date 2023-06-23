@@ -1,3 +1,6 @@
+// incorperate heat into the attract/repel functions by multiplying delta and heat ratio,
+// so that more heat means more movement
+
 // reduce heat fall of rate
 
 // make a particle that reperesents the player that can be controlled
@@ -9,9 +12,6 @@
 
 // dont worry about limestone until you have sand made out of dirt
 // then you could spawn bones in the water to mix with sand to make limestone
-
-// incorperate heat into the attract/repel functions by multiplying delta and heat ratio,
-// so that more heat means more movement
 
 // use distant zones by
 //    summing zone as one particle with
