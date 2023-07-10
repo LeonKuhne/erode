@@ -13,7 +13,6 @@ export class Zone extends Pos {
   fix(size) {
     this.x = this.col * size
     this.y = this.row * size
-    this.size = size
   }
 
   draw(ctx, particleSize) {

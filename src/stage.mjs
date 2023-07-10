@@ -1,6 +1,7 @@
 import { Pos } from './pos.mjs'
 import { Particle } from './particle.mjs'
 import { Zone } from './zone.mjs'
+import { MarchingSquares } from './squares.mjs'
 
 export class Stage {
 
@@ -16,6 +17,7 @@ export class Stage {
     this.height = 0
     this.zones = []
     this.highlighted = {}
+    this.marchingSquares = new MarchingSquares(gridSize)
   }
 
   updateCanvas(canvas, width=canvas.width, height=canvas.height, size=this.minDist) {
@@ -309,9 +311,40 @@ export class Stage {
     ctx.clearRect(0, 0, this.width, this.height)
     ctx.fillStyle = "#000000"
     ctx.fillRect(0, 0, this.width, this.height)
+    let grid = []
     for (let col of this.zones) {
+      let gridCol = [0] // top row water
       for (let zone of col) {
         zone.draw(ctx, this.particleSize)
+        // recompute ratio
+        let nLand = zone.particles.filter(p => p.feat("name") != "water").length
+        let landRatio = nLand / zone.particles.length
+        gridCol.push(landRatio > 0.5 ? 1 : 0)
+      }
+      gridCol.push(1) // bot row land
+      grid.push(gridCol)
+    }
+    // marching squares
+    for (let x=0;x<=this.cols;x++) {
+      // support wrapping
+      let left = (x == 0 ? grid.length : x) - 1
+      let right = x == grid.length ? 0 : x 
+      for (let y=1;y<this.rows+2;y++) {
+        let corners = [
+          grid[left][y-1],   // top left
+          grid[right][y-1],  // top right
+          grid[right][y],    // bot right
+          grid[left][y],     // bot left
+        ]
+        let idx = parseInt(corners.join(''), 2)
+        // render the shape
+        let shapeX = x * this.minDist
+        let shapeY = (y-2) * this.minDist 
+        ctx.fillStyle = "red"
+        ctx.fillText(idx, shapeX, shapeY)
+        ctx.fillStyle = "white"
+        let shape = this.marchingSquares.shapes[idx]
+        ctx.drawImage(shape, shapeX, shapeY)
       }
     }
     // highlight
