@@ -25,6 +25,7 @@ export class Particle extends Pos {
     delta.multiply(amount)
     delta.multiply(this.feat('mass')/other.feat('mass'))
     delta.multiply(this.feat('heat')/other.feat('heat'))
+    delta.multiply(1 - this.feat("friction"))
     other.forceQueue.subtract(delta)
   }
 
@@ -39,9 +40,10 @@ export class Particle extends Pos {
     this._resetForces()
   }
 
-  _applyForces(friction) {
+  _applyForces(airFriction) {
     this.vel.add(this.forceQueue)
-    this.vel.multiply(1 - friction)
+    this.vel.multiply(1 - airFriction)
+    this.vel.multiply(1 - this.feat("friction"))
     this.add(this.vel)
   }
 
