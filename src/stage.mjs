@@ -315,6 +315,7 @@ export class Stage {
     for (let col of this.zones) {
       let gridCol = [0] // top row water
       for (let zone of col) {
+        // comment this line for caves only
         zone.draw(ctx, this.particleSize)
         // recompute ratio
         let nLand = zone.particles.filter(p => p.feat("name") != "water").length
@@ -339,7 +340,7 @@ export class Stage {
         ]
         let idx = parseInt(corners.join(''), 2)
         // render the shape
-        let shapeX = x * this.minDist
+        let shapeX = (x-1) * this.minDist
         let shapeY = (y-2) * this.minDist 
         let shape = this.marchingSquares.shapes[idx]
         ctx.drawImage(shape, shapeX, shapeY)
