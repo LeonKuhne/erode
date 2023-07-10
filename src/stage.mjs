@@ -325,6 +325,7 @@ export class Stage {
       grid.push(gridCol)
     }
     // marching squares
+    ctx.globalAlpha = 0.25
     for (let x=0;x<=this.cols;x++) {
       // support wrapping
       let left = (x == 0 ? grid.length : x) - 1
@@ -340,13 +341,11 @@ export class Stage {
         // render the shape
         let shapeX = x * this.minDist
         let shapeY = (y-2) * this.minDist 
-        ctx.fillStyle = "red"
-        ctx.fillText(idx, shapeX, shapeY)
-        ctx.fillStyle = "white"
         let shape = this.marchingSquares.shapes[idx]
         ctx.drawImage(shape, shapeX, shapeY)
       }
     }
+    ctx.globalAlpha = 1
     // highlight
     if (this.highlighted) {
       for (let neighbor of Object.values(this.highlighted)) {
