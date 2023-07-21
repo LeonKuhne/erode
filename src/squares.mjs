@@ -1,12 +1,12 @@
 
 
 export class MarchingSquares {
-  constructor(size) {
+  constructor() {
     // Define corner points
     //  6 5 4
     //  7   3
     //  0 1 2
-    const points = [
+    this.points = [
       [0, 1],   
       [0.5, 1], 
       [1, 1],   
@@ -19,7 +19,7 @@ export class MarchingSquares {
 
     // Define lookup table for marching squares
     // Each combination corresponds to a different polygon
-    const polygons = [
+    this.polygons = [
       [],
       [[0, 1, 7]],
       [[1, 2, 3]],
@@ -37,9 +37,11 @@ export class MarchingSquares {
       [[1, 2, 4, 6, 7]],
       [[0, 2, 4, 6]],
     ];
+  }
 
+  renderShapes(size) {
     // Generate pre-rendered image URLs
-    const imageUrls = polygons.map((polygonPoints) => {
+    const imageUrls = this.polygons.map((polygonPoints) => {
       // Create a new canvas
       const canvas = document.createElement('canvas');
       canvas.width = size;
@@ -51,7 +53,7 @@ export class MarchingSquares {
         ctx.fillStyle = "white"
         ctx.beginPath();
         pointsInPolygon.forEach((pointIndex, index) => {
-          const [x, y] = points[pointIndex];
+          const [x, y] = this.points[pointIndex];
           if (index === 0) {
             ctx.moveTo(x * size, y * size);
           } else {

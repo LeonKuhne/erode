@@ -17,13 +17,15 @@ export class Stage {
     this.height = 0
     this.zones = []
     this.highlighted = {}
-    this.marchingSquares = new MarchingSquares(gridSize)
+    this.squareOpacity = 0.25
+    this.squares = new MarchingSquares()
   }
 
   updateCanvas(canvas, width=canvas.width, height=canvas.height, size=this.minDist) {
     this.updateSize(width, height, size)
     canvas.width = this.width
     canvas.height = this.height
+    this.squares.renderShapes(size)
   }
 
   updateSize(width, height, size=this.minDist) {
@@ -326,7 +328,7 @@ export class Stage {
       grid.push(gridCol)
     }
     // marching squares
-    ctx.globalAlpha = 0.25
+    ctx.globalAlpha = this.squareOpacity
     for (let x=0;x<=this.cols;x++) {
       // support wrapping
       let left = (x == 0 ? grid.length : x) - 1
@@ -342,7 +344,7 @@ export class Stage {
         // render the shape
         let shapeX = (x-1) * this.minDist
         let shapeY = (y-2) * this.minDist 
-        let shape = this.marchingSquares.shapes[idx]
+        let shape = this.squares.shapes[idx]
         ctx.drawImage(shape, shapeX, shapeY)
       }
     }

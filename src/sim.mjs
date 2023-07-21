@@ -34,6 +34,7 @@ export class Sim {
       "land friction": { val: 0.9 },
       "air friction": { get: () => this.stage.airFriction, set: (x) => this.stage.airFriction = x },
       "heat speed": { get: () => this.stage.heatSpeed, set: (x) => this.stage.heatSpeed = x },
+      "square opacity": { get: () => this.stage.squareOpacity, set: (x) => this.stage.squareOpacity = x },
     }
     this._bind(controls)
     this.stage.setBrightness(this.settings["grid brightness"].get())
