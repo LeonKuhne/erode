@@ -48,11 +48,8 @@ export class Particle extends Pos {
   }
 
   _applyHeat(speed) {
-    const heatDelta = this.forceQueue.diagonal()
-    let nextTemp = this.feat("heat")
-    nextTemp += (heatDelta * 2 - 1) * speed
-    nextTemp = Math.tanh(nextTemp)
-    this.features['heat'] = nextTemp 
+    const heatDelta = this.forceQueue.magnitude()
+    this.features['heat'] += Math.tanh(speed * (heatDelta - 1))
   }
 
   _resetForces() {
@@ -64,12 +61,16 @@ export class Particle extends Pos {
     if (!color) {
       color = this.feat('color')
       const red = Math.floor((this.feat("heat") + 1) / 2 * 256)
+      if (Number.isNaN(red)) {
+        throw Error("color heat value is NaN")
+      }
       ctx.fillStyle = `rgb(${red}, ${color[1]}, ${color[2]})`
     } else {
       ctx.fillStyle = color
     }
-    const x = zone.x + this.x - particleSize/2 - .5
-    const y = zone.y + this.y - particleSize/2 - .5
-    ctx.fillRect(x, y, particleSize, particleSize)
+    const size = particleSize * (1 + this.feat('mass') ** .5)
+    const x = zone.x + this.x - size/2 - .5
+    const y = zone.y + this.y - size/2 - .5
+    ctx.fillRect(x, y, size, size)
   }
 }

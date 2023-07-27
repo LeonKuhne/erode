@@ -15,6 +15,10 @@ export class Stage {
     this.rows = 0
     this.width = 0
     this.height = 0
+    this.minCombineDistance = 0.1
+    this.minCombineSpeed = 0.1
+    this.minCombineHeat = 0.1
+    this.showBorder = true
     this.zones = []
     this.highlighted = {}
     this.squareOpacity = 0.25
@@ -38,6 +42,7 @@ export class Stage {
   }
 
   setBrightness(x) {
+    this.showBorder = !!x
     this.eachZone(zone => {
       zone.color = `rgb(${x}, ${x}, ${x})`
     })
@@ -110,7 +115,7 @@ export class Stage {
   }
 
   fixCols(cols) {
-    if (cols < this.cols) { 
+    if (cols <= this.cols) { 
       this.removeColumns(cols)
     } else {
       this.addColums(cols)
@@ -119,7 +124,7 @@ export class Stage {
   }
 
   fixRows(rows) {
-    if (rows < this.rows) { 
+    if (rows <= this.rows) { 
       this.removeRows(rows)
     } else {
       this.addRows(rows)
@@ -128,6 +133,10 @@ export class Stage {
   }
 
   addParticle(pos, features) {
+    // add additional features
+    features['mass multiplyer'] = 1
+    features.mass = () => features['mass start']() * features['mass multiplyer']
+    // add particle to zone
     const zone = this.getZone(pos)
     const offset = this.getOffset(pos)
     const particle = new Particle(offset, features)
@@ -136,9 +145,8 @@ export class Stage {
 
   // @param pos position in normalized coordinates  
   getZone(pos) {
-    const col = Math.min(Math.floor(pos.x * (this.cols)), this.cols-1) 
-    const row = Math.min(Math.floor(pos.y * (this.rows)), this.rows-1)
-    return this.zones[col][row]
+    const zonePos = this.getZonePos(pos)
+    return this.zones[zonePos.x][zonePos.y]
   }
 
   findZone(particle) {
@@ -149,6 +157,13 @@ export class Stage {
         }
       }
     }
+  }
+  
+  // @param pos position in normalized coordinates
+  getZonePos(pos) {
+    const col = Math.min(Math.floor(pos.x * (this.cols)), this.cols-1) 
+    const row = Math.min(Math.floor(pos.y * (this.rows)), this.rows-1)
+    return new Pos(col, row)
   }
 
   // @param pos position in normalized coordinates
@@ -161,11 +176,51 @@ export class Stage {
   update(callback) {
     // calculate deltas 
     this.eachParticleNeighbors(callback)
-    // apply positions and fix zones
     this.eachParticleZone((particle, zone) => {
+      // apply deltas
       particle.apply(this.airFriction, this.heatSpeed)
       this.moveParticle(zone, particle)
+      // consolidate
+      for (const {particle: other, zone: otherZone, offset, distance} of this.getNearbyParticles(particle, zone)) {
+        if (distance < this.minCombineDistance) {
+          const isSlow = p => p.vel.magnitude() < this.minCombineSpeed
+          if (isSlow(particle) && isSlow(other)) {
+            const isCold = p => p.feat('heat') < this.minCombineHeat
+            if (isCold(particle) && isCold(other)) {
+              this.combineParticles(zone, particle, otherZone, other)
+            }
+          }
+        }
+      }
     })
+    // remove all particles with zero mass
+    this.eachParticleZone((particle, zone) => {
+      if (!particle.feat('mass multiplyer')) {
+        zone.remove(particle)
+      }
+    })
+  }
+
+  combineParticles(zone, particle, otherZone, other) {
+    const otherMassRatio = other.feat('mass') / particle.feat('mass')
+    // heat
+    particle.features['heat'] += other.feat('heat') * otherMassRatio
+    // velocity
+    const otherMomentum = other.vel.clone()
+    otherMomentum.multiply(otherMassRatio)
+    particle.vel.add(otherMomentum)
+    // average position
+    const absPos = zone.clone()
+    absPos.add(particle)
+    const delta = otherZone.clone()
+    delta.add(other)
+    delta.subtract(absPos)
+    delta.divide(2)
+    particle.add(delta)
+    this.moveParticle(zone, particle)
+    // combine mass
+    particle.features['mass multiplyer'] += other.feat('mass multiplyer')
+    other.features['mass multiplyer'] = 0
   }
 
   findNeighbors(particle) {
@@ -318,7 +373,7 @@ export class Stage {
       let gridCol = [0] // top row water
       for (let zone of col) {
         // comment this line for caves only
-        zone.draw(ctx, this.particleSize)
+        zone.draw(ctx, this.particleSize, this.showBorder)
         // recompute ratio
         let nLand = zone.particles.filter(p => p.feat("name") != "water").length
         let landRatio = nLand / zone.particles.length

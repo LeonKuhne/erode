@@ -35,6 +35,9 @@ export class Sim {
       "air friction": { get: () => this.stage.airFriction, set: (x) => this.stage.airFriction = x },
       "heat speed": { get: () => this.stage.heatSpeed, set: (x) => this.stage.heatSpeed = x },
       "square opacity": { get: () => this.stage.squareOpacity, set: (x) => this.stage.squareOpacity = x },
+      "min combine distance": { get: () => this.stage.minCombineDistance, set: (x) => this.stage.minCombineDistance = x },
+      "min combine speed": { get: () => this.stage.minCombineSpeed, set: (x) => this.stage.minCombineSpeed = x },
+      "min combine heat": { get: () => this.stage.minCombineHeat, set: (x) => this.stage.minCombineHeat = x },
     }
     this._bind(controls)
     this.stage.setBrightness(this.settings["grid brightness"].get())
@@ -87,7 +90,7 @@ export class Sim {
     for (let x=0;x<this.settings["brush size"].get();x++) {
       this.stage.addParticle(pos, {
         name: "water", 
-        mass: this.settings["water mass"].get, 
+        'mass start': () => this.settings["water mass"].get(),
         friction: this.settings["water friction"].get,
         color: [0,0,255],
         heat: 1,
@@ -97,13 +100,14 @@ export class Sim {
 
   addLand(pos=new Pos(Math.random(), (Math.random()+1)/2)) {
     for (let x=0;x<this.settings["brush size"].get();x++) {
-      this.stage.addParticle(pos, {
+      let features = {
         name: "land",
-        mass: () => this.settings["land mass"].get(),
+        'mass start': () => this.settings["land mass"].get(),
         friction: () => this.settings["land friction"].get(),
         color: [0,255,0],
         heat: 1,
-      })
+      }
+      this.stage.addParticle(pos, features)
     }
   }
 
@@ -126,8 +130,8 @@ export class Sim {
       particle.add(new Pos(jit(), jit()))
       // gravity
       particle.force(0, this.settings["gravity"].get()) 
+      const gridSize = this.settings["grid size"].get()
       for (let {particle: other, offset, distance} of nearbyParticles) {
-        const gridSize = this.settings["grid size"].get()
         offset.multiply(gridSize)
         const amount = (1 - distance/gridSize) ** 2 
         // repel other particles
