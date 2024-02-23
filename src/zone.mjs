@@ -32,7 +32,7 @@ export class Zone extends Pos {
     }
   }
 
-  add(particle) {
+  insert(particle) {
     this.particles.push(particle)
   }
 

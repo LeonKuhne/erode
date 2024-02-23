@@ -9,7 +9,7 @@ body {
   overflow: hidden;
 }
 
-canvas {
+#sim {
   margin: auto;
   background: black;
   display: block;
@@ -64,7 +64,7 @@ canvas {
   grid-template-columns: 9rem auto 8rem;
 }
 
-#controls * {
+label, #controls button, #controls input, #controls select, #controls textarea {
   background: black;
   margin: 1px !important;
   color: white;
@@ -77,4 +77,32 @@ label {
   text-align: right;
   padding-right: 0.25rem;
   padding: 0.25rem;
+}
+
+.tabs button.active {
+  background: white !important;
+  color: black !important;
+}
+
+.plotter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.plotter .graph {
+  border: 1px solid white;
+  margin: 0;
+  width: 100%;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.stat.active {
+  background: white !important;
+  color: black !important;
 }

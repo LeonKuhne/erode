@@ -1,14 +1,49 @@
+import { Track } from "./track.mjs"
+
 export class Controls {
   constructor() {
     this.elems = {}
   }
 
   renderTo(parent) {
+    // create tab buttons
+    const tabButtons = document.createElement("div")
+    tabButtons.classList.add("tabs")
+    const tabElems = {
+      settings: (head) => this.renderSettingsTab(head),
+      graph: (head) => this.renderGraphTab(head),
+    }
+    const tab = document.createElement("div")
+    for (const tabName of Object.keys(tabElems)) {
+      const tabButton = document.createElement("button")
+      tabButton.innerText = tabName
+      tabButton.addEventListener("click", (e) => {
+        tab.innerHTML = ""
+        tabElems[tabName](tab)
+        // update active button
+        e.target.classList.add("active")
+        for (const button of tabButtons.querySelectorAll("button")) {
+          if (button == e.target) { continue }
+          button.classList.remove("active")
+        }
+      })
+      tabButtons.appendChild(tabButton)
+    }
     // remove bottom elements
     const bottomElems = parent.querySelectorAll(".bottom")
     for (const elem of bottomElems) {
       parent.removeChild(elem)
     }
+    // add tab buttons and tab
+    parent.appendChild(tabButtons)
+    parent.appendChild(tab)
+    // add back bottom elements
+    for (const elem of bottomElems) {
+      parent.appendChild(elem)
+    }
+  }
+
+  renderSettingsTab(parent) {
     // add header line
     const header = document.createElement("div")
     header.classList.add("group", "slider", "header")
@@ -23,10 +58,12 @@ export class Controls {
     for (let {elem} of Object.values(this.elems)) {
       parent.appendChild(elem)
     }
-    // add back bottom elements
-    for (const elem of bottomElems) {
-      parent.appendChild(elem)
-    }
+  }
+  
+  renderGraphTab(parent) {
+    // add graph
+    const graph = this._newGraph()
+    parent.appendChild(graph)
   }
 
   bind(name, getValue, setValue, ...settings) {
@@ -106,5 +143,100 @@ export class Controls {
     group.appendChild(valLabel)
     group.appendChild(applyScale)
     callback(group, setValue)
+  }
+
+  _newGraph() {
+    // ceate a select for the yAxis
+    const yAxis = document.createElement("stats")
+    const enabledAxis = {}
+    // add multiple attribute
+    yAxis.multiple = true
+    const updateYAxisStats = () => {
+      // add options that are not already there
+      for (let key in Track.data) {
+        if (yAxis.querySelector(`.stat[value="${key}"]`)) { continue }
+        const stat = document.createElement("button")
+        stat.classList.add("stat")
+        stat.value = key
+        stat.innerText = key
+        // mark as active on click
+        stat.addEventListener("click", (e) => {
+          e.target.classList.toggle("active")
+          if (!e.target.classList.contains("active")) {
+            delete enabledAxis[key]
+          } else {
+            enabledAxis[key] = true
+          }
+        })
+        // create label
+        yAxis.appendChild(stat)
+      }
+      // remove stats that are no longer there
+      for (let stat of yAxis.querySelectorAll('.stat')) {
+        if (Track.data[stat.value]) { continue }
+        yAxis.removeChild(stat)
+      }
+      yAxis.size = yAxis.querySelectorAll('.stat').length
+    }
+    updateYAxisStats()
+    // create a canvas that has linesegments
+    const canvas = document.createElement("canvas")
+    canvas.classList.add("graph")
+    const ctx = canvas.getContext("2d")
+    ctx.font = "32px Arial"
+    ctx.fillStyle = "white"
+    // create a callback to plot a point, scale for canvas size
+    const plotPoint = (key, points) => {
+      updateYAxisStats()
+      if (key in enabledAxis) { return }
+      // clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      // label yAxis
+      ctx.save()
+      ctx.translate(0, canvas.height / 2)
+      ctx.rotate(-Math.PI / 2)
+      ctx.fillText(key, -canvas.height/4, 18)
+      ctx.restore()
+      // get max and min
+      if (!points.length) { return }
+      const minX = points[0].x
+      const maxX = points[points.length - 1].x
+      const rangeX = maxX - minX 
+      let minY = points.reduce((min, pos) => Math.min(min, pos.y), Number.MAX_VALUE)
+      let maxY = points.reduce((max, pos) => Math.max(max, pos.y), Number.MIN_VALUE)
+      let rangeY = maxY - minY
+      if (minY == maxY) { return }
+      // plot lines 
+      ctx.strokeStyle = "white"
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      // start line
+      let from = points[0]
+      for (let i = 1; i < points.length; i++) {
+        let to = points[i]
+        // normalize and scale
+        to.x = (to.x - minX) / rangeX * canvas.width
+        to.y = (1 - (to.y - minY) / rangeY) * canvas.height
+        if (Number.isNaN(to.x) || Number.isNaN(to.y)) {
+          console.log("pause")
+        }
+        ctx.moveTo(from.x, from.y)
+        ctx.lineTo(to.x, to.y)
+        from = to 
+      }
+      ctx.stroke()
+      ctx.closePath()
+    }
+    yAxis.addEventListener("change", () => {
+      const key = yAxis.value 
+      plotPoint(key, Track.data[key])
+    })
+    Track.plotTo(plotPoint)
+    // create a group
+    const group = document.createElement("div")
+    group.classList.add("group", "plotter")
+    group.appendChild(yAxis)
+    group.appendChild(canvas)
+    return group
   }
 }

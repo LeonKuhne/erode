@@ -1,5 +1,6 @@
 import { Stage } from "./stage.mjs"
 import { Pos } from "./pos.mjs"
+import { Track } from "./track.mjs"
 
 export class Sim {
 
@@ -38,6 +39,7 @@ export class Sim {
       "min combine distance": { get: () => this.stage.minCombineDistance, set: (x) => this.stage.minCombineDistance = x },
       "min combine speed": { get: () => this.stage.minCombineSpeed, set: (x) => this.stage.minCombineSpeed = x },
       "min combine heat": { get: () => this.stage.minCombineHeat, set: (x) => this.stage.minCombineHeat = x },
+      "history ms": { get: () => Track.HISTORY_MS, set: (x) => Track.HISTORY_MS = x, max: 20000 },
     }
     this._bind(controls)
     this.stage.setBrightness(this.settings["grid brightness"].get())
@@ -116,7 +118,7 @@ export class Sim {
     const loop = () => {
       if (this.running) {
         this.cycle()
-        this.stage.draw(this.ctx)
+        this.draw()
         setTimeout(loop, this.settings["tick delay"].get())
       }
     }
@@ -142,5 +144,9 @@ export class Sim {
         }
       }
     })
+  }
+
+  draw() {
+    this.stage.draw(this.ctx)
   }
 }

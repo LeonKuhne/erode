@@ -57,7 +57,9 @@ export class Stage {
         for (let particle of zone.particles) {
           const newCol = zone.col % this.cols 
           // add particle to new zone
-          this.zones[newCol][zone.row].particles.push(particle)
+          const newZone = this.zones[newCol][zone.row]
+          newZone.particles.push(particle)
+          particle.zone = newZone
         }
         zone.particles = []
       }
@@ -72,7 +74,9 @@ export class Stage {
       for (let zone of deletedRows) {
         for (let particle of zone.particles) {
           const newRow = zone.row % newRows
-          this.zones[zone.col][newRow].particles.push(particle)
+          const newZone = this.zones[zone.col][newRow]
+          newZone.particles.push(particle)
+          particle.zone = newZone
         }
         zone.particles = []
       }
@@ -133,37 +137,26 @@ export class Stage {
   }
 
   addParticle(pos, features) {
+    // verify mass start is not 0 
+    if (!features['mass start']) {
+      throw new Error("mass start must not be 0")
+    }
     // add additional features
     features['mass multiplyer'] = 1
     features.mass = () => features['mass start']() * features['mass multiplyer']
     // add particle to zone
     const zone = this.getZone(pos)
     const offset = this.getOffset(pos)
-    const particle = new Particle(offset, features)
-    zone.add(particle)
+    const particle = new Particle(zone, offset, features)
+    zone.insert(particle)
   }
 
   // @param pos position in normalized coordinates  
   getZone(pos) {
-    const zonePos = this.getZonePos(pos)
-    return this.zones[zonePos.x][zonePos.y]
-  }
-
-  findZone(particle) {
-    for (let col of this.zones) {
-      for (let zone of col) {
-        if (zone.particles.includes(particle)) {
-          return zone
-        }
-      }
-    }
-  }
-  
-  // @param pos position in normalized coordinates
-  getZonePos(pos) {
-    const col = Math.min(Math.floor(pos.x * (this.cols)), this.cols-1) 
-    const row = Math.min(Math.floor(pos.y * (this.rows)), this.rows-1)
-    return new Pos(col, row)
+    const toGrid = (val, sections) => Math.min(Math.floor(val * (sections)), this.cols-1) 
+    const col = toGrid(pos.x, this.cols)
+    const row = toGrid(pos.y, this.rows)
+    return this.zones[col][row]
   }
 
   // @param pos position in normalized coordinates
@@ -180,6 +173,8 @@ export class Stage {
       // apply deltas
       particle.apply(this.airFriction, this.heatSpeed)
       this.moveParticle(zone, particle)
+    })
+    this.eachParticleZone((particle, zone) => {
       // consolidate
       for (const {particle: other, zone: otherZone, offset, distance} of this.getNearbyParticles(particle, zone)) {
         if (distance < this.minCombineDistance) {
@@ -224,8 +219,7 @@ export class Stage {
   }
 
   findNeighbors(particle) {
-    const zone = this.findZone(particle)
-    return this.getNearbyParticles(particle, zone)
+    return this.getNearbyParticles(particle, particle.zone)
   }
 
   getNearbyParticles(particle, zone) {
@@ -321,23 +315,31 @@ export class Stage {
       const idx = zone.particles.indexOf(particle)
       zone.particles.splice(idx, 1)
       // add to new zone
-      this.zones[col][row].add(particle)
+      const newZone = this.zones[col][row]
+      newZone.insert(particle)
+      // update particle zone
+      particle.zone = newZone
     }
   }
 
   wrapColumn(col, particle) {
+    let newCol = col
     let offset = Math.floor(particle.x / this.minDist)
     // next/prev zone
     if (offset) {
+      // fix particle zone position
       particle.x %= this.minDist
       if (particle.x < 0) {
         particle.x -= this.minDist * offset
       }
       // wrap sides
-      while (offset < 0) offset += this.cols
-      return (col + offset) % this.cols
+      const screenNumOffset = Math.floor(particle.x / this.width)
+      offset += screenNumOffset * this.cols
+      newCol += offset
+      newCol %= this.cols
+      newCol = Math.abs(newCol)
     }
-    return col
+    return newCol
   }
 
   stopRow(row, particle) {
@@ -422,17 +424,15 @@ export class Stage {
   }
 
   drawParticle(ctx, particle, color, withNeighborsColored=null) {
-    const zone = this.findZone(particle)
-    particle.draw(ctx, zone, this.particleSize, color)
+    particle.draw(ctx, particle.zone, this.particleSize, color)
     if (withNeighborsColored) {
       // find neighbors
-      const nearby = this.getNearbyParticles(particle, zone)
+      const nearby = this.getNearbyParticles(particle, particle.zone)
       for (let n of nearby) {
         n.particle.draw(ctx, n.zone, this.particleSize, withNeighborsColored)
       }
     }
   }
-
 
   // @param pos position in normalized coordinates
   findParticles(pos) {
